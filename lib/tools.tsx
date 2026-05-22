@@ -207,7 +207,6 @@ export function HashIdentifier() {
           <div className="bg-black/60 rounded p-4 border border-[#00FF41]/20">
             <div className="flex items-center gap-3 mb-2">
               <span className="text-2xl font-bold text-[#00FF41]">{result.type}</span>
-              <span className="text-xs text-gray-400">{result.hashLength || ''}</span>
             </div>
             <p className="text-xs mb-2">{result.strength}</p>
             <p className="text-xs text-gray-400">{result.info}</p>
