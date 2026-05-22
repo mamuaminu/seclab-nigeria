@@ -118,3 +118,10 @@ MIT — use it, learn from it, improve it.
 ---
 
 _SecLab Nigeria · Built in Nigeria, deployed to the world._
+
+## Deployment Status
+
+✅ Build: passing  
+🔄 Deploy: triggered on push to `main` via GitHub Actions  
+
+Live at: https://mamuaminu.github.io/seclab-nigeria/
