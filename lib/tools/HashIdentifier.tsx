@@ -66,7 +66,7 @@ export function HashIdentifier() {
       <div className="flex items-start justify-between mb-6">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[#00FF41] text-sm">⬡</span>
+            <span className="text-[#00FF41] text-sm" aria-hidden="true">⬡</span>
             <h3 className="text-[#E8E8E8] font-bold text-base tracking-tight">Hash Identifier</h3>
           </div>
           <p className="text-[#555] text-[11px] leading-relaxed max-w-[240px]">Paste any hash — get its type, strength rating, and usage info.</p>
@@ -75,11 +75,19 @@ export function HashIdentifier() {
       </div>
 
       <div className="mb-5">
+        <label className="text-[#555] font-mono text-[10px] tracking-widest uppercase block mb-2" htmlFor="hash-input">
+          HASH INPUT
+        </label>
         <input
+          id="hash-input"
+          type="text"
           value={hash}
           onChange={(e) => setHash(e.target.value)}
           placeholder="e.g. 5ebe2294ecd0e0f08eab7690d2a6ee69"
           className="tool-input"
+          aria-label="Hash to identify"
+          aria-describedby="hash-result"
+          spellCheck={false}
         />
       </div>
 
@@ -88,8 +96,11 @@ export function HashIdentifier() {
         <label className="text-[#555] font-mono text-[10px] tracking-widest uppercase block mb-2">TRY AN EXAMPLE</label>
         <div className="grid grid-cols-3 gap-2">
           {EXAMPLES.map((ex) => (
-            <button key={ex.type} onClick={() => fillExample(ex)}
-              className="tool-btn text-center">
+            <button key={ex.type} type="button"
+              onClick={() => fillExample(ex)}
+              className="tool-btn text-center"
+              aria-label={`Load example ${ex.type} hash`}
+            >
               <span className="text-[#FFB700] text-[9px]">{ex.type}</span>
               <div className="text-[#333] text-[8px] mt-0.5 truncate">{ex.hash.slice(0, 8)}...</div>
             </button>
@@ -99,10 +110,14 @@ export function HashIdentifier() {
 
       {/* Result */}
       {result && (
-        <div className="border border-[#1A1A1A] bg-black/60 p-5">
+        <div className="border border-[#1A1A1A] bg-black/60 p-5" id="hash-result" aria-live="polite" role="status">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
-              <span className={`font-bold text-xl ${result.color === 'green' ? 'text-[#00FF41]' : result.color === 'amber' ? 'text-[#FFB700]' : result.color === 'red' ? 'text-[#FF4444]' : 'text-[#888]'}`}>
+              <span className={`font-bold text-xl ${
+                result.color === 'green' ? 'text-[#00FF41]' :
+                result.color === 'amber' ? 'text-[#FFB700]' :
+                result.color === 'red' ? 'text-[#FF4444]' : 'text-[#888]'
+              }`}>
                 {result.type}
               </span>
             </div>
@@ -119,7 +134,7 @@ export function HashIdentifier() {
       )}
 
       {!result && hash.trim() && (
-        <div className="border border-[#1A1A1A] bg-black/60 p-5 text-center">
+        <div className="border border-[#1A1A1A] bg-black/60 p-5 text-center" aria-live="polite" role="status">
           <span className="font-mono text-[#333] text-xs">Analyzing...</span>
         </div>
       )}

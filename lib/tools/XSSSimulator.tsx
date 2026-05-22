@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 
 const PAYLOADS = [
   '<script>alert("XSS")</script>',
@@ -15,13 +15,21 @@ export function XSSSimulator() {
   const [input, setInput] = useState('');
   const [activeTab, setActiveTab] = useState<'try' | 'reference'>('try');
 
+  const handlePayloadKey = (e: React.KeyboardEvent, p: string) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setInput(p);
+      setPayload(p);
+    }
+  };
+
   return (
     <div className="glass border border-[#1A1A1A] p-7 font-mono">
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[#00FF41] text-sm">⬡</span>
+            <span className="text-[#00FF41] text-sm" aria-hidden="true">⬡</span>
             <h3 className="text-[#E8E8E8] font-bold text-base tracking-tight">XSS Simulator</h3>
           </div>
           <p className="text-[#555] text-[11px] leading-relaxed max-w-[240px]">See how cross-site scripting executes in a sandboxed environment.</p>
@@ -30,14 +38,16 @@ export function XSSSimulator() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-0 mb-5">
+      <div className="flex gap-0 mb-5" role="tablist" aria-label="XSS Simulator tabs">
         {(['try', 'reference'] as const).map(tab => (
-          <button key={tab} onClick={() => setActiveTab(tab)}
+          <button key={tab} type="button" role="tab" aria-selected={activeTab === tab}
+            onClick={() => setActiveTab(tab)}
             className={`font-mono text-[10px] tracking-widest uppercase px-4 py-2 border border-[#1A1A1A] -ml-px transition-colors ${
               activeTab === tab
                 ? 'bg-[#00FF41]/10 border-[#00FF41]/40 text-[#00FF41]'
                 : 'text-[#555] hover:text-[#888]'
-            }`}>
+            }`}
+          >
             {tab === 'try' ? 'Try It' : 'Reference'}
           </button>
         ))}
@@ -53,6 +63,7 @@ export function XSSSimulator() {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Paste XSS payload here..."
               className="tool-input"
+              aria-label="XSS payload input"
             />
           </div>
 
@@ -60,21 +71,25 @@ export function XSSSimulator() {
             <label className="text-[#555] font-mono text-[10px] tracking-widest uppercase block mb-2">QUICK PAYLOADS</label>
             <div className="flex flex-wrap gap-1.5">
               {PAYLOADS.map((p, i) => (
-                <button key={i} onClick={() => { setInput(p); setPayload(p); }}
-                  className="tool-btn">{p.slice(0, 22)}{p.length > 22 ? '...' : ''}</button>
+                <button key={i} type="button"
+                  onClick={() => { setInput(p); setPayload(p); }}
+                  onKeyDown={(e) => handlePayloadKey(e, p)}
+                  className="tool-btn"
+                  aria-label={`Load payload: ${p}`}
+                >{p.slice(0, 22)}{p.length > 22 ? '...' : ''}</button>
               ))}
             </div>
           </div>
 
           <div className="mb-5">
             <label className="text-[#555] font-mono text-[10px] tracking-widest uppercase block mb-2">SANDBOX OUTPUT</label>
-            <div className="bg-black border border-[#1A1A1A] p-4 min-h-[70px]">
+            <div className="bg-black border border-[#1A1A1A] p-4 min-h-[70px]" aria-live="polite" aria-label="Sandbox output">
               <div dangerouslySetInnerHTML={{ __html: input || payload }} />
             </div>
           </div>
         </>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-3" role="tabpanel">
           <div className="bg-black/60 border border-[#1A1A1A] p-4">
             <div className="font-mono text-[10px] text-[#FFB700] mb-1">// REFLECTED XSS</div>
             <div className="font-mono text-[11px] text-[#555]">User input is echoed back without sanitization. Attackers inject scripts via URL parameters.</div>
@@ -91,7 +106,7 @@ export function XSSSimulator() {
       )}
 
       {/* Warning */}
-      <div className="bg-[#FFB700]/5 border border-[#FFB700]/20 p-4 mt-2">
+      <div className="bg-[#FFB700]/5 border border-[#FFB700]/20 p-4 mt-2" role="note" aria-label="Security warning">
         <p className="text-[#FFB700] font-mono text-[10px] font-semibold tracking-wider uppercase mb-1">⚠ How it works</p>
         <p className="text-[#555] font-mono text-[11px] leading-relaxed">
           XSS injects scripts into web pages. Unvalidated input can steal cookies, hijack sessions, or redirect users. Always escape and validate server-side.
