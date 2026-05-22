@@ -2,13 +2,13 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'SecLab Nigeria — Interactive Cybersecurity Lab',
-  description: 'Live security demos, CTF writeups, and cybersecurity tools. Built by a Nigerian security professional.',
-  keywords: 'cybersecurity, CTF, XSS, cipher, hash, Nigeria, hacking, security tools',
+  title: 'SecLab Nigeria — Cybersecurity Tools, CTF & Training',
+  description: 'Interactive security demos, CTF challenges, training courses, and vulnerability recon. Built for the security community.',
+  keywords: 'cybersecurity, CTF, pentesting, web security, SQL injection, XSS, bug bounty, Nigeria',
   authors: [{ name: 'Muhammad Aminu Musa' }],
   openGraph: {
     title: 'SecLab Nigeria',
-    description: 'Interactive cybersecurity demos and CTF writeups',
+    description: 'Cybersecurity tools, CTF challenges, and training — by Muhammad Aminu Musa',
     type: 'website',
   },
 };
