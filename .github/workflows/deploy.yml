@@ -46,7 +46,14 @@ jobs:
           echo "Upload failed"
           echo "Artifact size: $(du -sh out/)"
           echo "File count: $(find out/ -type f | wc -l)"
-          echo "Upload outputs: ${{ steps.upload-artifact.outputs.artifact-id }}"
+          echo "Artifact ID env: $ARTIFACT_ID"
+          echo "Artifact name env: $ARTIFACT_NAME"
+
+      - name: Echo artifact info
+        run: |
+          echo "Checking artifact visibility..."
+          echo "Files in out/"
+          ls -la out/
 
   deploy:
     environment:
