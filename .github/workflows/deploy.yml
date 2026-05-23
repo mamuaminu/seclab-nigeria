@@ -34,9 +34,19 @@ jobs:
         run: npm run build
 
       - name: Upload artifact
+        id: upload-artifact
         uses: actions/upload-pages-artifact@v3
+        continue-on-error: true
         with:
           path: out
+
+      - name: Debug upload
+        if: steps.upload-artifact.outcome == 'failure'
+        run: |
+          echo "Upload failed"
+          echo "Artifact size: $(du -sh out/)"
+          echo "File count: $(find out/ -type f | wc -l)"
+          echo "Upload outputs: ${{ steps.upload-artifact.outputs.artifact-id }}"
 
   deploy:
     environment:
