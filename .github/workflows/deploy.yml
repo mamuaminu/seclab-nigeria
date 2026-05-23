@@ -41,7 +41,8 @@ jobs:
         run: |
           git checkout gh-pages || git checkout --orphan gh-pages
           git rm -rf . 2>/dev/null || true
-          cp -r out/* .
+          # Copy out/ contents but exclude node_modules and large artifacts
+          rsync -r --exclude='node_modules' --exclude='.git' out/ .
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
           git add -A
