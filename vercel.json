@@ -1,0 +1,15 @@
+{
+  "name": "vercel-deployment",
+  "version": 1,
+  "description": "Deploy SecLab Nigeria to Vercel for API route support",
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ]
+}

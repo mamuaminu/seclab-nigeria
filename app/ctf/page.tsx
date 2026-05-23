@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { openCheckout, isTierConfigured, type TierName } from '@/lib/checkout';
 
 const CHALLENGES = [
   {
@@ -314,7 +315,16 @@ export default function CTFPage() {
                     <span style={{ color: tier.color }}>✓</span> {f}
                   </div>
                 ))}
-                <button className="w-full mt-6 font-mono text-[11px] py-2.5 tracking-wider border transition-all duration-200"
+                <button
+                  onClick={() => {
+                    if (tier.name === 'Free') return;
+                    if (!isTierConfigured(tier.name as TierName)) {
+                      alert('Checkout not configured yet. DM @mamuaminu on Telegram to get access!');
+                      return;
+                    }
+                    openCheckout(tier.name as TierName);
+                  }}
+                  className="w-full mt-6 font-mono text-[11px] py-2.5 tracking-wider border transition-all duration-200"
                   style={{ borderColor: tier.color, color: tier.color }}
                   onMouseEnter={e => (e.currentTarget.style.background = `${tier.color}15`)}
                   onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
