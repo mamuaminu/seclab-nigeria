@@ -220,7 +220,7 @@ export default function Home() {
                 <div className="space-y-2 mb-8">
                   {product.stats.map(s => (
                     <div key={s} className="flex items-center gap-2 font-mono text-[12px] text-[#555]">
-                      <span style={{ color: product.tierColor }}>✓</span> {s}
+                      <span style={{ color: product.tierColor }}>▸</span> {s}
                     </div>
                   ))}
                 </div>

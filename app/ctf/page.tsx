@@ -176,9 +176,9 @@ export default function CTFPage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
               {filtered.map(ch => (
                 <div key={ch.id}
-                  className={`glass border p-6 card-hover relative overflow-hidden ${solved.includes(ch.id) ? 'border-[#00FF41]/40' : 'border-[#1A1A1A]'}`}>
+                  className={`glass border p-6 card-hover relative overflow-hidden ${solved.includes(ch.id) ? 'border-[#00FF41]/40' : 'border-[#2A2A2A]'}`}>
                   {solved.includes(ch.id) && (
-                    <div className="absolute top-3 right-3 font-mono text-[10px] text-[#00FF41] bg-[#00FF41]/10 border border-[#00FF41]/30 px-2 py-0.5">SOLVED ✓</div>
+                    <div className="absolute top-3 right-3 font-mono text-[10px] text-[#00FF41] border border-[#00FF41]/30 px-2 py-0.5 tracking-widest">SOLVED</div>
                   )}
 
                   <div className="flex items-center gap-2 mb-3">
@@ -204,7 +204,7 @@ export default function CTFPage() {
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-[10px] text-[#444]">{ch.solves} solves</span>
                     {solved.includes(ch.id) ? (
-                      <span className="font-mono text-[10px] text-[#00FF41]">Completed ✓</span>
+                      <span className="font-mono text-[10px] text-[#00FF41] tracking-wider">Done</span>
                     ) : (
                       <button onClick={() => { setSelected(ch.id); setAnswer(''); setShowHint(null); setFeedback(null); }}
                         className="font-mono text-[10px] text-[#00FF41] hover:underline">
@@ -236,7 +236,7 @@ export default function CTFPage() {
                     {!showHint && (
                       <button onClick={() => setShowHint(ch.id)}
                         className="font-mono text-[10px] text-[#FFB700] hover:underline mb-5">
-                        💡 Show Hint
+                        [SHOW HINT]
                       </button>
                     )}
                     {showHint === ch.id && (
@@ -306,13 +306,13 @@ export default function CTFPage() {
           <div className="grid md:grid-cols-3 gap-5">
             {TIERS.map(tier => (
               <div key={tier.name}
-                className={`glass border p-6 text-center ${tier.highlight ? 'border-[#00FF41]/40' : 'border-[#1A1A1A]'}`}>
+                className={`glass border p-6 text-center ${tier.highlight ? 'border-[#00FF41]/40' : 'border-[#2A2A2A]'}`}>
                 <div className="font-mono text-sm font-bold mb-1" style={{ color: tier.color }}>{tier.name}</div>
                 <div className="font-mono font-black text-3xl mb-1">{tier.price}<span className="text-sm font-normal text-[#555]">{tier.period}</span></div>
                 <div className="h-px bg-[#1A1A1A] my-4" />
                 {tier.features.map(f => (
                   <div key={f} className="font-mono text-[11px] text-[#666] py-1 flex items-center gap-2">
-                    <span style={{ color: tier.color }}>✓</span> {f}
+                    <span style={{ color: tier.color }}>▸</span> {f}
                   </div>
                 ))}
                 <button

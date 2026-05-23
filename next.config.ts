@@ -1,9 +1,9 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  // API routes need server-side rendering — Vercel handles this automatically
-  // GitHub Actions workflow still uses `npm run build && gh-pages -d out`
-  // which produces a static fallback for the main pages
+  // API routes require server-side rendering — 'output: export' disables them.
+  // Removed: output: 'export' — keeping SSR-capable for /api/checkout on Vercel.
+  // GitHub Actions workflow still builds static pages via `npm run build && gh-pages -d out`.
   images: { unoptimized: true },
   basePath: process.env.NODE_ENV === 'production' ? '/seclab-nigeria' : '',
 };
