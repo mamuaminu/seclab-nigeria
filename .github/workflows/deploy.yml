@@ -15,7 +15,10 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -33,51 +36,12 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Upload artifact
-        id: upload-artifact
-        uses: actions/upload-pages-artifact@v3
-        continue-on-error: true
-        with:
-          path: out
-
-      - name: Debug upload
-        if: steps.upload-artifact.outcome == 'failure'
-        run: |
-          echo "Upload failed"
-          echo "Artifact size: $(du -sh out/)"
-          echo "File count: $(find out/ -type f | wc -l)"
-          echo "Artifact ID env: $ARTIFACT_ID"
-          echo "Artifact name env: $ARTIFACT_NAME"
-
-      - name: Echo artifact info
-        run: |
-          echo "Checking artifact visibility..."
-          echo "Files in out/"
-          ls -la out/
-
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    permissions:
-      pages: write
-      id-token: write
-      contents: read
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: github-pages
-          path: out
-
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
           version: 3
 
-      - name: Upload to Pages
+      - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: out
