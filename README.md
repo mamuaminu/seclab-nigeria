@@ -121,7 +121,9 @@ _SecLab Nigeria · Built in Nigeria, deployed to the world._
 
 ## Deployment Status
 
-✅ Build: passing  
-🔄 Deploy: triggered on push to `main` via GitHub Actions  
+✅ Build: passing
+🔄 Deploy: triggered on push to `main` via GitHub Actions
+
+_Last updated: 2026-05-23_
 
 Live at: https://mamuaminu.github.io/seclab-nigeria/
