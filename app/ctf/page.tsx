@@ -524,17 +524,61 @@ export default function CTFPage() {
                 ))}
               </div>
 
-              {!showHint ? (
-                <button onClick={() => setShowHint(ch.id)}
-                  className="font-mono text-xs mb-5 transition-colors"
-                  style={{ color: '#f59e0b' }}>
-                  Show hint
-                </button>
-              ) : (
-                <div className="rounded-lg p-4 mb-5"
-                  style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)' }}>
-                  <p className="font-mono text-xs" style={{ color: '#f59e0b' }}>Hint: {ch.hint}</p>
+              {/* Hints section */}
+              {hints.length > 0 ? (
+                <div className="space-y-3 mb-5">
+                  {hints.map((hint, i) => {
+                    const isUnlocked = unlockedHints.includes(hint.id);
+                    const cost = hint.unlock_cost ?? 50;
+                    return (
+                      <div key={hint.id}
+                        className="rounded-lg p-4"
+                        style={{
+                          background: isUnlocked ? 'rgba(34,197,94,0.06)' : 'rgba(255,255,255,0.02)',
+                          border: isUnlocked ? '1px solid rgba(34,197,94,0.2)' : '1px solid #1e1e24',
+                        }}>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-mono text-xs font-semibold" style={{ color: '#71717a' }}>
+                            Hint {i + 1}
+                          </span>
+                          {!isUnlocked && (
+                            <span className="font-mono text-[10px] px-2 py-0.5 rounded"
+                              style={{ background: 'rgba(245,158,11,0.1)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.2)' }}>
+                              🔒 {cost} pts
+                            </span>
+                          )}
+                          {isUnlocked && (
+                            <span className="font-mono text-[10px] px-2 py-0.5 rounded"
+                              style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.2)' }}>
+                              ✓ Unlocked
+                            </span>
+                          )}
+                        </div>
+                        {isUnlocked ? (
+                          <p className="font-mono text-xs" style={{ color: '#22c55e' }}>{hint.hint_text}</p>
+                        ) : (
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono text-xs" style={{ color: '#3f3f46' }}>Spend {cost} pts to reveal</span>
+                            <button
+                              onClick={() => handleUnlockHint(hint.id, cost)}
+                              disabled={userPoints < cost}
+                              className="font-mono text-[10px] px-3 py-1 rounded-md border transition-all"
+                              style={{
+                                borderColor: userPoints >= cost ? 'rgba(245,158,11,0.4)' : '#1e1e24',
+                                color: userPoints >= cost ? '#f59e0b' : '#3f3f46',
+                                background: userPoints >= cost ? 'rgba(245,158,11,0.08)' : 'transparent',
+                                cursor: userPoints >= cost ? 'pointer' : 'not-allowed',
+                              }}>
+                              Unlock — {cost} pts
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
+              ) : (
+                <p className="font-mono text-xs mb-5" style={{ color: '#3f3f46' }}>Hints coming soon</p>
               )}
 
               {feedback && (
