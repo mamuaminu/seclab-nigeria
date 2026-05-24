@@ -46,6 +46,7 @@ export default function CTFPage() {
   const [editingName, setEditingName] = useState(false);
   const [tempName, setTempName] = useState('');
   const [userId, setUserId] = useState('ssr');
+  const [tappedId, setTappedId] = useState<number | null>(null);
   const categories = ['All', 'Web', 'Crypto', 'Network', 'Forensics'];
 
   useEffect(() => {
@@ -245,10 +246,20 @@ export default function CTFPage() {
                     const isSolved = solved.includes(ch.id);
                     return (
                       <div key={ch.id}
-                        className="card rounded-xl p-6 relative overflow-hidden"
+                        className="card rounded-xl p-6 relative overflow-hidden cursor-pointer card-tap"
+                        onClick={() => {
+                          setSelected(ch.id);
+                          setAnswer('');
+                          setShowHint(null);
+                          setFeedback(null);
+                          setTappedId(ch.id);
+                          setTimeout(() => setTappedId(null), 150);
+                        }}
                         style={{
                           background: '#111116',
                           border: `1px solid ${isSolved ? 'rgba(34,197,94,0.3)' : '#1e1e24'}`,
+                          transform: tappedId === ch.id ? 'scale(0.97)' : 'scale(1)',
+                          transition: 'transform 0.1s ease',
                         }}>
                         {isSolved && (
                           <div className="absolute top-4 right-4 font-mono text-[10px] px-2 py-0.5 rounded"

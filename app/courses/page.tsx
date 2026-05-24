@@ -34,6 +34,11 @@ export default function CoursesPage() {
   const [activeCourse, setActiveCourse] = useState<number | null>(null);
   const [activeLesson, setActiveLesson] = useState<any | null>(null);
   const [userId, setUserId] = useState('ssr');
+  const [toast, setToast] = useState<{ visible: boolean; message: string; courseTitle: string }>({
+    visible: false,
+    message: '',
+    courseTitle: '',
+  });
 
   useEffect(() => {
     setUserId(getUserId());
@@ -58,10 +63,17 @@ export default function CoursesPage() {
   }
 
   const handleEnroll = useCallback(async (courseId: number) => {
+    const course = COURSES.find(c => c.id === courseId);
     try {
       await enrollCourse(userId, courseId);
       setEnrolled(prev => [...prev, courseId]);
       setLessonProgress(prev => ({ ...prev, [String(courseId)]: {} }));
+      setToast({
+        visible: true,
+        message: 'Enrolled in',
+        courseTitle: course?.title || '',
+      });
+      setTimeout(() => setToast(prev => ({ ...prev, visible: false })), 4000);
     } catch (e) {
       console.error('Failed to enroll:', e);
     }
@@ -663,6 +675,32 @@ export default function CoursesPage() {
           <p className="font-mono text-[10px]" style={{ color: '#3f3f46' }}>© 2026 SecLab Nigeria</p>
         </div>
       </footer>
+
+      {/* Toast notification */}
+      {toast.visible && (
+        <div
+          className="fixed bottom-6 right-6 z-50 cursor-pointer rounded-xl shadow-2xl flex items-center gap-3 px-4 py-3"
+          style={{
+            background: '#111116',
+            border: '1px solid #1e1e24',
+            borderLeft: '4px solid #f59e0b',
+            minWidth: '280px',
+            animation: 'toast-in 0.3s ease-out forwards',
+          }}
+          onClick={() => setToast(prev => ({ ...prev, visible: false }))}
+        >
+          <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+            style={{ background: 'rgba(34,197,94,0.12)' }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8L6.5 11.5L13 5" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <p className="font-mono text-xs" style={{ color: '#f4f4f5' }}>{toast.message} <strong>{toast.courseTitle}!</strong></p>
+            <p className="font-mono text-[10px] mt-0.5" style={{ color: '#06b6d4' }}>Start learning →</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
