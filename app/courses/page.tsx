@@ -141,10 +141,29 @@ export default function CoursesPage() {
       </nav>
 
       {/* Two-column layout when a course is active */}
-      <div className="pt-16 min-h-screen" style={{ display: 'flex' }}>
+      <div className="pt-16 min-h-screen flex flex-col md:flex-row">
+
+        {/* Mobile sticky header — visible when course is open on small screens */}
+        {activeCourse && (
+          <div className="md:hidden sticky top-16 z-30 flex items-center gap-3 px-4 py-3"
+            style={{ background: '#16161c', borderBottom: '1px solid #1e1e24' }}>
+            <button
+              onClick={() => { setActiveCourse(null); setActiveLesson(null); }}
+              className="flex items-center gap-1.5 font-mono text-xs transition-colors"
+              style={{ color: '#f59e0b' }}>
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+              Back
+            </button>
+            <span className="font-mono text-xs" style={{ color: '#52525b' }}>|</span>
+            <span className="font-mono text-xs truncate flex-1" style={{ color: '#a1a1aa' }}>
+              {COURSES.find(c => c.id === activeCourse)?.title}
+            </span>
+          </div>
+        )}
+
 
         {/* LEFT PANEL — Course List (always visible, collapses on mobile) */}
-        <div className="flex-1 overflow-y-auto"
+        <div className="hidden md:block flex-1 overflow-y-auto"
           style={{
             width: activeCourse ? '380px' : '100%',
             flexShrink: 0,
@@ -284,7 +303,7 @@ export default function CoursesPage() {
           if (activeLesson) {
             const lessonModule = course.modules.find(m => m.lessons.some(l => l.key === activeLesson.key));
             return (
-              <div className="flex-1 overflow-y-auto" style={{ maxHeight: '100vh' }}>
+              <div className="flex-1 overflow-y-auto w-full" style={{ maxHeight: '100vh' }}>
                 {/* Lesson header */}
                 <div className="px-8 py-8 sticky top-0 z-10"
                   style={{ background: '#09090b', borderBottom: '1px solid #1e1e24' }}>
@@ -376,7 +395,7 @@ export default function CoursesPage() {
 
           // Course outline view (list of modules + lessons)
           return (
-            <div className="flex-1 overflow-y-auto" style={{ maxHeight: '100vh' }}>
+            <div className="flex-1 overflow-y-auto w-full" style={{ maxHeight: '100vh' }}>
               <div className="px-8 py-8 sticky top-0 z-10"
                 style={{ background: '#09090b', borderBottom: '1px solid #1e1e24' }}>
                 <button
@@ -447,7 +466,7 @@ export default function CoursesPage() {
           );
         })()}
 
-        {/* Empty state — no course selected */}
+        {/* Empty state — no course selected — hidden on mobile */}
         {!activeCourse && (
           <div className="hidden md:flex flex-1 items-center justify-center p-8"
             style={{ background: '#09090b' }}>
