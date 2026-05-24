@@ -141,11 +141,11 @@ export default function CoursesPage() {
       </nav>
 
       {/* Two-column layout when a course is active */}
-      <div className="pt-16 min-h-screen flex flex-col md:flex-row">
-
-        {/* Mobile sticky header — visible when course is open on small screens */}
-        {activeCourse && (
-          <div className="md:hidden sticky top-16 z-30 flex items-center gap-3 px-4 py-3"
+      {/* Mobile lesson panel — full-screen overlay when a course is open */}
+      {activeCourse && (
+        <div className="md:hidden fixed inset-0 z-40 overflow-y-auto" style={{ background: '#09090b', paddingTop: '64px' }}>
+          {/* Sticky back header */}
+          <div className="sticky top-0 z-10 flex items-center gap-3 px-4 py-3"
             style={{ background: '#16161c', borderBottom: '1px solid #1e1e24' }}>
             <button
               onClick={() => { setActiveCourse(null); setActiveLesson(null); }}
@@ -159,11 +159,151 @@ export default function CoursesPage() {
               {COURSES.find(c => c.id === activeCourse)?.title}
             </span>
           </div>
-        )}
 
+          {/* Lesson/module content */}
+          <div className="px-4 py-6">
+            {(() => {
+              const course = COURSES.find(c => c.id === activeCourse);
+              if (!course) return null;
+              const courseProgress = lessonProgress[String(activeCourse)] || {};
 
-        {/* LEFT PANEL — Course List (always visible) */}
-        <div className="flex-1 overflow-y-auto"
+              if (activeLesson) {
+              const lessonModule = course.modules.find(m => m.lessons.some(l => l.key === activeLesson.key));
+              return (
+                <div>
+                  <button
+                    onClick={() => setActiveLesson(null)}
+                    className="flex items-center gap-2 font-mono text-xs mb-5 transition-colors"
+                    style={{ color: '#52525b' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = '#f59e0b')}
+                    onMouseLeave={e => (e.currentTarget.style.color = '#52525b')}>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                    Back to modules
+                  </button>
+
+                  <div className="flex items-start justify-between gap-4 mb-6">
+                    <div>
+                      <p className="font-mono text-[10px] mb-2" style={{ color: '#f59e0b' }}>{lessonModule?.title}</p>
+                      <h2 className="font-display font-bold text-lg" style={{ color: '#f4f4f5' }}>{activeLesson.title}</h2>
+                    </div>
+                    <button
+                      onClick={() => handleToggleLesson(activeCourse, activeLesson.key)}
+                      className="flex-shrink-0 flex items-center gap-2 font-mono text-xs px-3 py-2 rounded-lg transition-all"
+                      style={{
+                        background: courseProgress[activeLesson.key] ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.08)',
+                        color: courseProgress[activeLesson.key] ? '#22c55e' : '#f59e0b',
+                        border: courseProgress[activeLesson.key] ? '1px solid rgba(34,197,94,0.2)' : '1px solid rgba(245,158,11,0.2)',
+                      }}>
+                      <span>{courseProgress[activeLesson.key] ? '✓ Done' : 'Mark complete'}</span>
+                    </button>
+                  </div>
+
+                  <div className="prose-content font-mono text-sm leading-relaxed"
+                    style={{ color: '#a1a1aa', whiteSpace: 'pre-wrap' }}>
+                    {activeLesson.content.split('\n\n').map((para: string, i: number) => {
+                      if (para.match(/^\*\*[^*]+\*\*$/)) {
+                        return <h3 key={i} className="font-display font-semibold text-base mt-6 mb-3"
+                          style={{ color: '#f4f4f5' }}>{para.replace(/\*\*/g, '')}</h3>;
+                      }
+                      if (para.startsWith('```')) {
+                        const code = para.replace(/```[a-z]*\n?/g, '');
+                        return <pre key={i} className="rounded-lg p-4 my-4 text-xs overflow-x-auto"
+                          style={{ background: '#111116', border: '1px solid #1e1e24', color: '#a1a1aa' }}>{code}</pre>;
+                      }
+                      const formatted = para.replace(/`([^`]+)`/g, '<code style="background:#1e1e24;padding:1px 5px;border-radius:3px;color:#f59e0b;font-size:0.85em">$1</code>');
+                      return <p key={i} className="mb-4 leading-relaxed"
+                        dangerouslySetInnerHTML={{ __html: formatted }} />;
+                    })}
+                  </div>
+
+                  <div className="mt-8 pt-6 flex items-center justify-between"
+                    style={{ borderTop: '1px solid #1e1e24' }}>
+                    {(() => {
+                      const allLessons = course.modules.flatMap(m => m.lessons);
+                      const idx = allLessons.findIndex(l => l.key === activeLesson.key);
+                      const prev = idx > 0 ? allLessons[idx - 1] : null;
+                      const next = idx < allLessons.length - 1 ? allLessons[idx + 1] : null;
+                      return (
+                        <>
+                          {prev ? (
+                            <button
+                              onClick={() => setActiveLesson(prev)}
+                              className="flex items-center gap-2 font-mono text-xs px-3 py-2 rounded-lg"
+                              style={{ color: '#52525b', background: '#111116', border: '1px solid #1e1e24' }}>
+                              ← {prev.title}
+                            </button>
+                          ) : <div />}
+                          {next ? (
+                            <button
+                              onClick={() => setActiveLesson(next)}
+                              className="flex items-center gap-2 font-mono text-xs px-3 py-2 rounded-lg"
+                              style={{ color: '#06b6d4', background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.2)' }}>
+                              {next.title} →
+                            </button>
+                          ) : <div />}
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              );
+              }
+
+              // Course outline
+              return (
+                <div>
+                  <h2 className="font-display font-bold text-lg mb-1" style={{ color: '#f4f4f5' }}>{course.title}</h2>
+                  <p className="font-mono text-xs mb-5" style={{ color: '#52525b' }}>
+                    {course.modules.length} modules · {course.modules.reduce((a, m) => a + m.lessons.length, 0)} lessons
+                  </p>
+
+                  <div className="space-y-3">
+                    {course.modules.map((mod, mi) => (
+                      <div key={mi} className="rounded-xl overflow-hidden"
+                        style={{ background: '#111116', border: '1px solid #1e1e24' }}>
+                        <div className="px-4 py-3" style={{ borderBottom: '1px solid #1e1e24', background: '#16161c' }}>
+                          <p className="font-mono text-xs font-semibold" style={{ color: '#f59e0b' }}>{mod.title}</p>
+                          <p className="font-mono text-[10px] mt-0.5" style={{ color: '#52525b' }}>{mod.lessons.length} lessons</p>
+                        </div>
+                        <div className="divide-y" style={{ borderColor: '#1e1e24' }}>
+                          {mod.lessons.map((lesson, li) => {
+                            const done = !!courseProgress[lesson.key];
+                            return (
+                              <button
+                                key={li}
+                                onClick={() => setActiveLesson(lesson)}
+                                className="w-full flex items-center gap-3 px-4 py-3 text-left transition-all"
+                                style={{ background: 'transparent' }}
+                                onMouseEnter={e => (e.currentTarget.style.background = '#16161c')}
+                                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                                <div className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0"
+                                  style={{ background: done ? '#22c55e' : 'transparent', border: done ? '#22c55e' : '#3f3f46' }}>
+                                  {done && <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="#000" strokeWidth="1.5" strokeLinecap="round"/></svg>}
+                                </div>
+                                <p className="flex-1 font-mono text-xs" style={{ color: done ? '#52525b' : '#a1a1aa', textDecoration: done ? 'line-through' : 'none' }}>
+                                  {lesson.title}
+                                </p>
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ color: '#3f3f46', flexShrink: 0 }}>
+                                  <path d="M4 2L8 6L4 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                                </svg>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        </div>
+      )}
+
+      <div className="pt-16 min-h-screen flex flex-col md:flex-row">
+
+        {/* LEFT PANEL — Course List (hidden on mobile when a course is open) */}
+        <div className={activeCourse ? 'hidden md:block flex-1 overflow-y-auto' : 'flex-1 overflow-y-auto'}
           style={{
             width: activeCourse ? '380px' : '100%',
             flexShrink: 0,
