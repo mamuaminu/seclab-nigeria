@@ -58,6 +58,7 @@ function certificateHTML(courseTitle: string, completedAt: string): string {
 </body>
 </html>`;
 }
+function parseLessons(courseId: number): { module: string; lesson: any }[] {
   const course = COURSES.find(c => c.id === courseId);
   if (!course) return [];
   const result: { module: string; lesson: any }[] = [];

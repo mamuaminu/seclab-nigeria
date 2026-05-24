@@ -106,7 +106,7 @@ export default function CTFPage() {
         setSolveCounts(prev => ({ ...prev, [challengeId]: (prev[challengeId] || 0) + 1 }));
         setUserPoints(result.newPoints > 0 ? userPoints + result.newPoints : userPoints);
         setFeedback({ ok: true, msg: result.message });
-        addXP(challenge.points);
+        addXP(points);
         const lb = await fetchLeaderboard();
         setLeaderboard(lb || []);
         setSelected(null);
