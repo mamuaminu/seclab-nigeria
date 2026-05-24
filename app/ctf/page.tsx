@@ -165,7 +165,7 @@ export default function CTFPage() {
                       }
                       if (e.key === 'Escape') setEditingName(false);
                     }}
-                    className="tool-input w-36"
+                    className="tool-input w-full sm:w-36"
                     autoFocus
                   />
                   <button onClick={() => { setUsername(tempName.trim() || 'Anonymous'); setEditingName(false); }}
@@ -353,7 +353,7 @@ export default function CTFPage() {
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
             style={{ background: 'rgba(9,9,11,0.85)', backdropFilter: 'blur(8px)' }}
             onClick={(e) => e.target === e.currentTarget && setSelected(null)}>
-            <div className="w-full max-w-lg rounded-2xl p-8"
+            <div className="w-full max-w-lg rounded-2xl p-4 md:p-8"
               style={{ background: '#111116', border: '1px solid #1e1e24' }}>
               <div className="flex items-center justify-between mb-6">
                 <div>

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useEffect, useRef } from 'react';
 
 const PRODUCTS = [
@@ -64,6 +65,8 @@ function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: str
 }
 
 export default function Home() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
     <div className="min-h-screen" style={{ background: '#09090b' }}>
 
@@ -81,7 +84,9 @@ export default function Home() {
               Sec<span style={{ color: '#06b6d4' }}>Lab</span><span style={{ color: '#f59e0b' }}>NG</span>
             </span>
           </a>
-          <div className="flex items-center gap-8">
+
+          {/* Desktop nav */}
+          <div className="hidden md:flex items-center gap-8">
             {[
               ['/ctf', 'CTF'],
               ['/courses', 'Courses'],
@@ -97,11 +102,76 @@ export default function Home() {
               GitHub
             </a>
           </div>
+
+          {/* Mobile hamburger */}
+          <button
+            className="md:hidden flex flex-col justify-center items-center w-10 h-10 rounded-lg transition-colors"
+            style={{ background: '#16161c', color: '#a1a1aa' }}
+            onClick={() => setMobileOpen(true)}
+            onMouseEnter={e => (e.currentTarget.style.background = '#1e1e24')}
+            onMouseLeave={e => (e.currentTarget.style.background = '#16161c')}
+          >
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path d="M2 4H16M2 9H16M2 14H16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </button>
         </div>
       </nav>
 
+      {/* Mobile menu overlay */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'rgba(9,9,11,0.97)', backdropFilter: 'blur(16px)' }}
+          onClick={(e) => e.target === e.currentTarget && setMobileOpen(false)}>
+          <div className="flex items-center justify-between px-6 h-16" style={{ borderBottom: '1px solid #1e1e24' }}>
+            <a href="/" className="flex items-center gap-3" onClick={() => setMobileOpen(false)}>
+              <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
+                <path d="M14 2L25 8V20L14 26L3 20V8L14 2Z" stroke="#06b6d4" strokeWidth="1.5" fill="rgba(6,182,212,0.1)"/>
+                <path d="M9 14L12 17L19 10" stroke="#06b6d4" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+              <span className="font-display font-bold text-sm" style={{ color: '#f4f4f5' }}>
+                Sec<span style={{ color: '#06b6d4' }}>Lab</span><span style={{ color: '#f59e0b' }}>NG</span>
+              </span>
+            </a>
+            <button
+              className="w-10 h-10 rounded-lg flex items-center justify-center transition-colors"
+              style={{ background: '#16161c', color: '#71717a' }}
+              onClick={() => setMobileOpen(false)}
+              onMouseEnter={e => (e.currentTarget.style.background = '#1e1e24')}
+              onMouseLeave={e => (e.currentTarget.style.background = '#16161c')}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M3 3L13 13M13 3L3 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+            </button>
+          </div>
+          <div className="flex-1 flex flex-col items-center justify-center gap-8 px-6">
+            {[
+              ['/ctf', 'CTF'],
+              ['/courses', 'Courses'],
+              ['/recon', 'Recon'],
+            ].map(([href, label]) => (
+              <a key={href} href={href} onClick={() => setMobileOpen(false)}
+                className="font-display font-bold text-2xl transition-colors"
+                style={{ color: '#a1a1aa' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#06b6d4')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#a1a1aa')}
+              >
+                {label}
+              </a>
+            ))}
+            <a href="https://github.com/mamuaminu" target="_blank" rel="noopener noreferrer"
+              className="font-mono text-sm px-6 py-3 rounded-lg transition-all"
+              style={{ background: 'rgba(6,182,212,0.1)', color: '#06b6d4', border: '1px solid rgba(6,182,212,0.2)' }}
+              onClick={() => setMobileOpen(false)}
+            >
+              GitHub
+            </a>
+          </div>
+        </div>
+      )}
+
       {/* ── HERO ── */}
-      <section className="relative pt-32 pb-24 px-6 text-center overflow-hidden">
+      <section className="relative pt-20 pb-12 px-4 md:pt-32 md:pb-24 md:px-6 text-center overflow-hidden" style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         {/* subtle grid bg */}
         <div className="absolute inset-0 pointer-events-none"
           style={{
@@ -126,7 +196,7 @@ export default function Home() {
           </div>
 
           {/* headline */}
-          <h1 className="font-display font-extrabold text-5xl md:text-6xl lg:text-7xl leading-[1.05] tracking-tight mb-6"
+          <h1 className="font-display font-extrabold text-3xl md:text-5xl md:text-6xl lg:text-7xl leading-[1.05] tracking-tight mb-6"
             style={{ color: '#f4f4f5' }}>
             <span>Break things.</span>
             <br />
@@ -339,7 +409,7 @@ export default function Home() {
       {/* ── FOOTER ── */}
       <footer className="px-6 py-16">
         <div className="max-w-6xl mx-auto">
-          <div className="grid sm:grid-cols-4 gap-10 mb-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10 mb-12">
             {/* Brand */}
             <div className="sm:col-span-1">
               <div className="flex items-center gap-3 mb-4">

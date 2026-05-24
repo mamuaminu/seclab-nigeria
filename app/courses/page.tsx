@@ -143,7 +143,7 @@ export default function CoursesPage() {
       {/* Two-column layout when a course is active */}
       {/* Mobile lesson panel — full-screen overlay when a course is open */}
       {activeCourse && (
-        <div className="md:hidden fixed inset-0 z-40 overflow-y-auto" style={{ background: '#09090b', paddingTop: '64px' }}>
+        <div className="md:hidden fixed inset-0 z-40 overflow-y-auto" style={{ background: '#09090b', paddingTop: '64px', paddingBottom: '24px' }}>
           {/* Sticky back header */}
           <div className="sticky top-0 z-10 flex items-center gap-3 px-4 py-3"
             style={{ background: '#16161c', borderBottom: '1px solid #1e1e24' }}>
@@ -305,7 +305,7 @@ export default function CoursesPage() {
         {/* LEFT PANEL — Course List (hidden on mobile when a course is open) */}
         <div className={activeCourse ? 'hidden md:block flex-1 overflow-y-auto' : 'flex-1 overflow-y-auto'}
           style={{
-            width: activeCourse ? '380px' : '100%',
+            width: '100%',
             flexShrink: 0,
             borderRight: activeCourse ? '1px solid #1e1e24' : 'none',
             maxHeight: '100vh',

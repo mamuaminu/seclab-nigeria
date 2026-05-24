@@ -394,7 +394,7 @@ export default function ReconPage() {
                       {f}
                     </div>
                   ))}
-                  <button className="w-full mt-6 py-3 rounded-lg font-semibold text-sm transition-all"
+                  <button className="w-full mt-6 py-4 rounded-lg font-semibold text-sm transition-all"
                     style={{
                       background: plan.highlight ? plan.color : 'transparent',
                       color: plan.highlight ? '#000' : plan.color,
