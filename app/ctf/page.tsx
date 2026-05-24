@@ -310,36 +310,147 @@ export default function CTFPage() {
                 ↻ Refresh
               </button>
             </div>
-            <div className="rounded-xl overflow-hidden" style={{ background: '#111116', border: '1px solid #1e1e24' }}>
-              {leaderboard.length === 0 ? (
-                <div className="p-8 text-center font-mono text-sm" style={{ color: '#52525b' }}>
-                  No submissions yet. Be the first!
+
+            {/* Podium for top 3 */}
+            {leaderboard.length > 0 ? (
+              <div className="mb-8">
+                <div className="flex items-end justify-center gap-3 md:gap-6 px-4">
+                  {/* 3rd place */}
+                  {leaderboard[2] && (() => {
+                    const entry = leaderboard[2];
+                    const isMe = entry.username === getUsername();
+                    return (
+                      <div className="flex flex-col items-center gap-3 flex-1 max-w-[140px]">
+                        <div className="text-3xl">🥉</div>
+                        <div className="w-full rounded-xl p-4 flex flex-col items-center gap-1"
+                          style={{
+                            background: '#111116',
+                            border: '1.5px solid rgba(205,127,50,0.4)',
+                            boxShadow: '0 0 20px rgba(205,127,50,0.08)',
+                          }}>
+                          <span className="font-display font-semibold text-sm truncate w-full text-center"
+                            style={{ color: isMe ? '#06b6d4' : '#f4f4f5' }}>
+                            {entry.username}
+                            {isMe && <span style={{ color: '#f59e0b' }}> (you)</span>}
+                          </span>
+                          <span className="font-mono text-2xl font-bold" style={{ color: '#cd7f32' }}>
+                            {entry.points.toLocaleString()}
+                          </span>
+                          <span className="font-mono text-xs" style={{ color: '#52525b' }}>
+                            {entry.solves_count || 0} solves
+                          </span>
+                        </div>
+                        <div className="w-full rounded-t-xl flex items-center justify-center py-3"
+                          style={{ background: 'rgba(205,127,50,0.15)', border: '1.5px solid rgba(205,127,50,0.4)', borderBottom: 'none', height: '60px' }}>
+                          <span className="font-mono text-xs font-bold" style={{ color: '#cd7f32' }}>#3</span>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* 1st place */}
+                  {leaderboard[0] && (() => {
+                    const entry = leaderboard[0];
+                    const isMe = entry.username === getUsername();
+                    return (
+                      <div className="flex flex-col items-center gap-3 flex-1 max-w-[160px]">
+                        <div className="text-4xl">🥇</div>
+                        <div className="w-full rounded-xl p-5 flex flex-col items-center gap-1"
+                          style={{
+                            background: '#111116',
+                            border: '1.5px solid rgba(245,158,11,0.5)',
+                            boxShadow: '0 0 30px rgba(245,158,11,0.12)',
+                          }}>
+                          <span className="font-display font-semibold text-base truncate w-full text-center"
+                            style={{ color: isMe ? '#06b6d4' : '#f4f4f5' }}>
+                            {entry.username}
+                            {isMe && <span style={{ color: '#f59e0b' }}> (you)</span>}
+                          </span>
+                          <span className="font-mono text-3xl font-bold" style={{ color: '#f59e0b' }}>
+                            {entry.points.toLocaleString()}
+                          </span>
+                          <span className="font-mono text-xs" style={{ color: '#52525b' }}>
+                            {entry.solves_count || 0} solves
+                          </span>
+                        </div>
+                        <div className="w-full rounded-t-xl flex items-center justify-center py-4"
+                          style={{ background: 'rgba(245,158,11,0.2)', border: '1.5px solid rgba(245,158,11,0.5)', borderBottom: 'none', height: '80px' }}>
+                          <span className="font-mono text-sm font-bold" style={{ color: '#f59e0b' }}>#1</span>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* 2nd place */}
+                  {leaderboard[1] && (() => {
+                    const entry = leaderboard[1];
+                    const isMe = entry.username === getUsername();
+                    return (
+                      <div className="flex flex-col items-center gap-3 flex-1 max-w-[140px]">
+                        <div className="text-3xl">🥈</div>
+                        <div className="w-full rounded-xl p-4 flex flex-col items-center gap-1"
+                          style={{
+                            background: '#111116',
+                            border: '1.5px solid rgba(163,163,173,0.4)',
+                            boxShadow: '0 0 20px rgba(163,163,173,0.06)',
+                          }}>
+                          <span className="font-display font-semibold text-sm truncate w-full text-center"
+                            style={{ color: isMe ? '#06b6d4' : '#f4f4f5' }}>
+                            {entry.username}
+                            {isMe && <span style={{ color: '#f59e0b' }}> (you)</span>}
+                          </span>
+                          <span className="font-mono text-2xl font-bold" style={{ color: '#a1a1aa' }}>
+                            {entry.points.toLocaleString()}
+                          </span>
+                          <span className="font-mono text-xs" style={{ color: '#52525b' }}>
+                            {entry.solves_count || 0} solves
+                          </span>
+                        </div>
+                        <div className="w-full rounded-t-xl flex items-center justify-center py-3"
+                          style={{ background: 'rgba(161,161,170,0.12)', border: '1.5px solid rgba(163,163,173,0.4)', borderBottom: 'none', height: '60px' }}>
+                          <span className="font-mono text-xs font-bold" style={{ color: '#a1a1aa' }}>#2</span>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
-              ) : leaderboard.map((entry: any, i: number) => {
-                const isMe = entry.username === getUsername();
-                return (
-                  <div key={i}
-                    className="flex items-center gap-4 px-6 py-4"
-                    style={{
-                      borderBottom: i < leaderboard.length - 1 ? '1px solid #1e1e24' : undefined,
-                      background: isMe ? 'rgba(6,182,212,0.05)' : i < 3 ? 'rgba(6,182,212,0.03)' : undefined,
-                    }}>
-                    <span className="font-mono font-bold text-sm w-5"
-                      style={{ color: i === 0 ? '#f59e0b' : i === 1 ? '#71717a' : i === 2 ? '#cd7f32' : '#3f3f46' }}>
-                      #{i + 1}
-                    </span>
-                    <span className="font-mono text-sm flex-1"
-                      style={{ color: isMe ? '#06b6d4' : '#f4f4f5', fontWeight: isMe ? 600 : 400 }}>
-                      {entry.username} {isMe ? '(you)' : ''}
-                    </span>
-                    <span className="font-mono text-xs" style={{ color: '#52525b' }}>{entry.solves_count || 0} solves</span>
-                    <span className="font-mono text-sm font-bold" style={{ color: '#22c55e' }}>
-                      {entry.points.toLocaleString()}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+              </div>
+            ) : (
+              <div className="rounded-xl p-8 text-center font-mono text-sm mb-8"
+                style={{ background: '#111116', border: '1px solid #1e1e24', color: '#52525b' }}>
+                No submissions yet. Be the first!
+              </div>
+            )}
+
+            {/* Rest of leaderboard (positions 4+) */}
+            {leaderboard.length > 3 && (
+              <div className="rounded-xl overflow-hidden" style={{ background: '#111116', border: '1px solid #1e1e24' }}>
+                {leaderboard.slice(3).map((entry: any, i: number) => {
+                  const isMe = entry.username === getUsername();
+                  return (
+                    <div key={i}
+                      className="flex items-center gap-4 px-6 py-4"
+                      style={{
+                        borderBottom: i < leaderboard.slice(3).length - 1 ? '1px solid #1e1e24' : undefined,
+                        background: isMe ? 'rgba(6,182,212,0.05)' : undefined,
+                      }}>
+                      <span className="font-mono font-bold text-sm w-5"
+                        style={{ color: '#3f3f46' }}>
+                        #{i + 4}
+                      </span>
+                      <span className="font-mono text-sm flex-1"
+                        style={{ color: isMe ? '#06b6d4' : '#f4f4f5', fontWeight: isMe ? 600 : 400 }}>
+                        {entry.username} {isMe ? '(you)' : ''}
+                      </span>
+                      <span className="font-mono text-xs" style={{ color: '#52525b' }}>{entry.solves_count || 0} solves</span>
+                      <span className="font-mono text-sm font-bold" style={{ color: '#22c55e' }}>
+                        {entry.points.toLocaleString()}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
       </div>
