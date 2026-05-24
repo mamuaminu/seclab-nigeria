@@ -162,8 +162,8 @@ export default function CoursesPage() {
         )}
 
 
-        {/* LEFT PANEL — Course List (always visible, collapses on mobile) */}
-        <div className="hidden md:block flex-1 overflow-y-auto"
+        {/* LEFT PANEL — Course List (always visible) */}
+        <div className="flex-1 overflow-y-auto"
           style={{
             width: activeCourse ? '380px' : '100%',
             flexShrink: 0,
@@ -294,7 +294,7 @@ export default function CoursesPage() {
           </section>
         </div>
 
-        {/* RIGHT PANEL — Lesson Content (only visible when enrolled + course selected) */}
+        {/* RIGHT PANEL — Lesson Content (only visible when enrolled + course selected on desktop) */}
         {activeCourse && (() => {
           const course = COURSES.find(c => c.id === activeCourse);
           if (!course) return null;
