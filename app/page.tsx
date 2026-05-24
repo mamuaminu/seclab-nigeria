@@ -1,268 +1,416 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 const PRODUCTS = [
   {
     id: 'ctf',
     name: 'CTF Platform',
-    short: 'Practice',
-    icon: '🚩',
+    icon: '⬡',
+    iconColor: '#06b6d4',
     tagline: 'Compete. Learn. Level up.',
-    description: 'Hands-on CTF challenges across Web, Crypto, Network, and Forensics. Free to start, Pro for hints and private leaderboard.',
+    description: 'Hands-on CTF challenges across Web, Crypto, Network, and Forensics. Practice against real vulnerability patterns used in security competitions worldwide.',
     cta: 'Start Solving',
     href: '/ctf',
-    tier: 'FREE',
-    tierColor: '#00FF41',
-    stats: ['6 Live Challenges', '147 Members', 'Weekly events'],
+    color: '#06b6d4',
+    colorDim: 'rgba(6,182,212,0.1)',
+    stats: ['6 Live Challenges', 'Weekly competitions', 'Community writeups'],
   },
   {
     id: 'courses',
     name: 'Security Training',
-    short: 'Learn',
-    icon: '📚',
+    icon: '⬡',
+    iconColor: '#f59e0b',
     tagline: 'Learn by breaking things.',
-    description: 'Practical courses with real labs. Web pentesting, Python automation, Burp Suite mastery. Free and paid tiers.',
+    description: 'Free structured courses that take you from beginner to competent. Real labs, practical methodology, no filler. Built by a working pentester.',
     cta: 'Browse Courses',
     href: '/courses',
-    tier: 'FREE + PAID',
-    tierColor: '#FFB700',
-    stats: ['4 Courses', '1,107 Students', '4.8 avg rating'],
+    color: '#f59e0b',
+    colorDim: 'rgba(245,158,11,0.1)',
+    stats: ['4 Free Courses', 'Beginner to Intermediate', 'Hands-on labs'],
   },
   {
     id: 'recon',
     name: 'Vulnerability Recon',
-    short: 'Recon',
-    icon: '🔍',
+    icon: '⬡',
+    iconColor: '#22c55e',
     tagline: 'Know your attack surface.',
-    description: 'Automated recon SaaS. Subdomain enumeration, port scanning, CVE lookup, tech fingerprinting, and PDF reports.',
+    description: 'Automated recon scanner. Subdomain enumeration, port scanning, CVE lookup, and technology fingerprinting — with actionable PDF reports.',
     cta: 'Run First Scan',
     href: '/recon',
-    tier: 'FREE TIER',
-    tierColor: '#00FF41',
-    stats: ['5 scans/day free', 'CVE database', 'PDF reports'],
+    color: '#22c55e',
+    colorDim: 'rgba(34,197,94,0.1)',
+    stats: ['5 free scans/day', 'CVE database', 'PDF reports'],
   },
 ];
 
+function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let start = 0;
+    const duration = 1500;
+    const step = 16;
+    const increment = target / (duration / step);
+    const timer = setInterval(() => {
+      start = Math.min(start + increment, target);
+      el.textContent = Math.floor(start).toLocaleString() + suffix;
+      if (start >= target) clearInterval(timer);
+    }, step);
+    return () => clearInterval(timer);
+  }, [target, suffix]);
+  return <span ref={ref}>0{suffix}</span>;
+}
+
 export default function Home() {
-  const [scrolled, setScrolled] = useState(false);
-  const [visible, setVisible] = useState(false);
-  const [terminalLines, setTerminalLines] = useState<string[]>([]);
-
-  useEffect(() => { setVisible(true); }, []);
-
-  const bootMessages = [
-    '> Initializing SecLab Nigeria...',
-    '> Loading product suite...',
-    '> CTF Platform: online',
-    '> Training Platform: online',
-    '> Recon Scanner: online',
-    '> All systems nominal.',
-  ];
-
-  useEffect(() => {
-    let i = 0;
-    const interval = setInterval(() => {
-      if (i < bootMessages.length) {
-        setTerminalLines(prev => [...prev, bootMessages[i]]);
-        i++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 350);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60);
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  const scrollTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   return (
-    <div className="min-h-screen bg-black text-[#E8E8E8]">
+    <div className="min-h-screen" style={{ background: '#09090b' }}>
 
       {/* ── NAV ── */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'glass py-3' : 'py-5'}`}>
-        <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
-          <button onClick={() => window.location.href = '/'} className="flex items-center gap-2.5 group">
-            <span className="text-[#00FF41] font-mono font-black text-xl leading-none group-hover:drop-shadow-[0_0_8px_rgba(0,255,65,0.6)] transition-all">⬡</span>
-            <span className="font-mono font-bold text-sm tracking-[0.15em] uppercase">Sec<span className="text-[#00FF41]">Lab</span><span className="text-[#FFB700]">NG</span></span>
-          </button>
-          <div className="flex gap-6 text-xs font-mono tracking-wider">
+      <nav className="fixed top-0 left-0 right-0 z-50" style={{ background: 'rgba(9,9,11,0.9)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #1e1e24' }}>
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <a href="/" className="flex items-center gap-3 group">
+            <div className="relative">
+              <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14 2L25 8V20L14 26L3 20V8L14 2Z" stroke="#06b6d4" strokeWidth="1.5" fill="rgba(6,182,212,0.1)"/>
+                <path d="M9 14L12 17L19 10" stroke="#06b6d4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <span className="font-display font-bold text-sm tracking-wide" style={{ color: '#f4f4f5' }}>
+              Sec<span style={{ color: '#06b6d4' }}>Lab</span><span style={{ color: '#f59e0b' }}>NG</span>
+            </span>
+          </a>
+          <div className="flex items-center gap-8">
             {[
-              ['/ctf', 'CTF Platform'],
-              ['/courses', 'Training'],
+              ['/ctf', 'CTF'],
+              ['/courses', 'Courses'],
               ['/recon', 'Recon'],
             ].map(([href, label]) => (
-              <a key={href} href={href}
-                className="text-[#888] hover:text-[#00FF41] transition-colors duration-200 uppercase tracking-widest">
+              <a key={href} href={href} className="nav-link" style={{ color: '#a1a1aa' }}>
                 {label}
               </a>
             ))}
+            <a href="https://github.com/mamuaminu" target="_blank" rel="noopener noreferrer"
+              className="font-mono text-xs px-4 py-2 rounded-md transition-all"
+              style={{ background: 'rgba(6,182,212,0.1)', color: '#06b6d4', border: '1px solid rgba(6,182,212,0.2)' }}>
+              GitHub
+            </a>
           </div>
         </div>
       </nav>
 
       {/* ── HERO ── */}
-      <section className="relative min-h-screen flex items-center justify-center grid-bg mesh-gradient overflow-hidden">
+      <section className="relative pt-32 pb-24 px-6 text-center overflow-hidden">
+        {/* subtle grid bg */}
+        <div className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: 'linear-gradient(rgba(6,182,212,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(6,182,212,0.03) 1px, transparent 1px)',
+            backgroundSize: '48px 48px',
+          }} />
+        {/* top glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(6,182,212,0.08) 0%, transparent 70%)' }} />
 
-        {/* Ambient glows */}
-        <div className="absolute top-0 left-0 w-96 h-96 rounded-full bg-[#00FF41]/5 blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-72 h-72 rounded-full bg-[#FFB700]/4 blur-[80px] pointer-events-none" />
-
-        {/* Terminal card */}
-        <div className="absolute top-[20%] right-[5%] w-72 glass border border-[#1A1A1A] p-4 float hidden lg:block">
-          <div className="flex items-center gap-1.5 mb-3">
-            <span className="w-2.5 h-2.5 bg-[#FF4444] rounded-full" />
-            <span className="w-2.5 h-2.5 bg-[#FFB700] rounded-full" />
-            <span className="w-2.5 h-2.5 bg-[#00FF41] rounded-full" />
-            <span className="ml-2 text-[#555] font-mono text-[10px] tracking-wider">seclab@root:~</span>
-          </div>
-          <div className="space-y-1 min-h-[100px]">
-            {terminalLines.map((line, i) => (
-              <p key={i} className="text-[#00FF41] font-mono text-xs">{line}</p>
-            ))}
-            {terminalLines.length < bootMessages.length && <span className="cursor-blink text-[#00FF41] font-mono text-xs" />}
-          </div>
-        </div>
-
-        <div className={`relative z-10 text-center px-6 max-w-5xl mx-auto transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 mb-6">
+        <div className="relative z-10 max-w-4xl mx-auto">
+          {/* badge */}
+          <div className="inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full"
+            style={{ background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.15)' }}>
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00FF41] opacity-50" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00FF41]" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full" style={{ background: '#06b6d4', opacity: 0.5 }} />
+              <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: '#06b6d4' }} />
             </span>
-            <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[#888]">Nigeria&apos;s Cybersecurity Product Suite</span>
+            <span className="font-mono text-xs tracking-wider uppercase" style={{ color: '#06b6d4' }}>
+              Nigeria&apos;s Cybersecurity Platform
+            </span>
           </div>
 
-          <h1 className="font-mono font-black text-5xl md:text-7xl lg:text-8xl leading-[1] mb-5 tracking-tight">
-            <span className="text-white block">Break.</span>
-            <span className="text-[#00FF41] neon-flicker block">Learn.</span>
+          {/* headline */}
+          <h1 className="font-display font-extrabold text-5xl md:text-6xl lg:text-7xl leading-[1.05] tracking-tight mb-6"
+            style={{ color: '#f4f4f5' }}>
+            <span>Break things.</span>
             <br />
-            <span className="text-white block">Build.</span>
-            <span className="text-[#FFB700] glow-amber block">Ship.</span>
+            <span style={{ color: '#06b6d4' }}>Learn fast.</span>
+            <br />
+            <span>Ship confidently.</span>
           </h1>
 
-          <p className="text-[#888] text-base md:text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
-            Three products for the cybersecurity community. Practice on our CTF platform, learn with structured courses, and audit your own infrastructure with our recon scanner.
+          {/* sub */}
+          <p className="text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed"
+            style={{ color: '#71717a' }}>
+            Three products for the security community. Practice on our CTF platform,
+            learn with free structured courses, and audit your infrastructure with our recon scanner.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-14">
-            <a href="/ctf" className="btn-neon">Try CTF Platform →</a>
-            <a href="/courses" className="btn-ghost">Browse Courses</a>
-            <a href="/recon" className="btn-ghost">Run Recon Scan</a>
+          {/* CTA */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <a href="/ctf" className="btn-primary">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1L15 4.5V11.5L8 15L1 11.5V4.5L8 1Z" stroke="currentColor" strokeWidth="1.5"/></svg>
+              Explore CTF Platform
+            </a>
+            <a href="/courses" className="btn-outline">Browse Free Courses</a>
+          </div>
+        </div>
+      </section>
+
+      {/* ── STATS STRIP ── */}
+      <section className="border-y" style={{ borderColor: '#1e1e24' }}>
+        <div className="max-w-6xl mx-auto px-6 py-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {[
+              ['6', 'Live Challenges', '#06b6d4'],
+              ['0', 'Courses (Free)', '#f59e0b'],
+              ['5', 'Scans/day free', '#22c55e'],
+              ['24/7', 'Platform uptime', '#a1a1aa'],
+            ].map(([val, label, color]) => (
+              <div key={label}>
+                <div className="font-display font-extrabold text-4xl mb-1" style={{ color }}>{val}</div>
+                <div className="font-mono text-xs uppercase tracking-widest" style={{ color: '#52525b' }}>{label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── THREE PRODUCTS ── */}
+      <section className="py-24 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <span className="section-label">// WHAT WE BUILD</span>
+            <h2 className="font-display font-bold text-4xl md:text-5xl mt-3 mb-4" style={{ color: '#f4f4f5' }}>
+              Three products.
+              <br /><span style={{ color: '#06b6d4' }}>One ecosystem.</span>
+            </h2>
+            <p className="text-base max-w-lg mx-auto" style={{ color: '#71717a' }}>
+              Each product stands alone. Together they form a complete learning and testing platform for web application security.
+            </p>
           </div>
 
-          {/* Product cards row */}
-          <div className="grid sm:grid-cols-3 gap-5 max-w-3xl mx-auto">
-            {PRODUCTS.map(p => (
-              <a key={p.id} href={p.href}
-                className="group glass border border-[#1A1A1A] p-5 text-left card-hover">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-2xl">{p.icon}</span>
-                  <span className="font-mono text-[9px] tracking-widest uppercase px-2 py-0.5 border"
-                    style={{ borderColor: `${p.tierColor}40`, color: p.tierColor, background: `${p.tierColor}08` }}>
-                    {p.tier}
-                  </span>
-                </div>
-                <div className="font-mono font-bold text-sm text-[#E8E8E8] mb-1 group-hover:text-[#00FF41] transition-colors">{p.name}</div>
-                <div className="font-mono text-[10px] text-[#444] mb-3">{p.tagline}</div>
-                {p.stats.map(s => (
-                  <div key={s} className="font-mono text-[10px] text-[#555] flex items-center gap-1.5 mb-1">
-                    <span style={{ color: p.tierColor }}>▸</span> {s}
+          <div className="space-y-20">
+            {PRODUCTS.map((product, i) => (
+              <div key={product.id}
+                className={`grid lg:grid-cols-2 gap-12 items-center ${i % 2 === 1 ? 'lg:grid-flow-dense' : ''}`}
+                style={{ direction: i % 2 === 1 ? 'rtl' : 'ltr' }}>
+                {/* Text side */}
+                <div style={{ direction: 'ltr' }}>
+                  <div className="inline-flex items-center gap-3 mb-5">
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center"
+                      style={{ background: product.colorDim, border: `1px solid ${product.color}30` }}>
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 1L18 5.5V14.5L10 19L2 14.5V5.5L10 1Z" stroke={product.color} strokeWidth="1.5"/>
+                        <path d="M7 10L9 12L13 8" stroke={product.color} strokeWidth="1.5" strokeLinecap="round"/>
+                      </svg>
+                    </div>
+                    <span className="badge" style={{
+                      background: product.colorDim,
+                      border: `1px solid ${product.color}30`,
+                      color: product.color,
+                    }}>
+                      {product.id === 'ctf' ? 'FREE' : product.id === 'courses' ? 'FREE COURSES' : 'FREE TIER'}
+                    </span>
                   </div>
-                ))}
+
+                  <h3 className="font-display font-bold text-3xl mb-2" style={{ color: '#f4f4f5' }}>
+                    {product.name}
+                  </h3>
+                  <p className="font-mono text-sm mb-4" style={{ color: product.color }}>{product.tagline}</p>
+                  <p className="text-base leading-relaxed mb-6" style={{ color: '#71717a' }}>{product.description}</p>
+
+                  <div className="space-y-2 mb-8">
+                    {product.stats.map(s => (
+                      <div key={s} className="flex items-center gap-3 font-mono text-sm" style={{ color: '#52525b' }}>
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                          <path d="M2 7L5.5 10.5L12 4" stroke={product.color} strokeWidth="1.5" strokeLinecap="round"/>
+                        </svg>
+                        {s}
+                      </div>
+                    ))}
+                  </div>
+
+                  <a href={product.href} className="btn-primary" style={{ background: product.color }}>
+                    {product.cta}
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <path d="M3 7H11M8 4L11 7L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                  </a>
+                </div>
+
+                {/* Visual side */}
+                <div style={{ direction: 'ltr' }}>
+                  <div className="rounded-2xl overflow-hidden p-8"
+                    style={{ background: '#111116', border: `1px solid #1e1e24`, minHeight: '280px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {/* Product mock cards */}
+                    <div className="w-full max-w-sm">
+                      <div className="space-y-3">
+                        {[0, 1, 2].map(j => (
+                          <div key={j} className="flex items-center gap-4 p-4 rounded-xl transition-all cursor-pointer"
+                            style={{ background: '#16161c', border: '1px solid #1e1e24' }}
+                            onMouseEnter={e => (e.currentTarget.style.borderColor = `${product.color}30`)}
+                            onMouseLeave={e => (e.currentTarget.style.borderColor = '#1e1e24')}>
+                            <div className="w-10 h-10 rounded-lg flex items-center justify-center"
+                              style={{ background: product.colorDim }}>
+                              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                {product.id === 'ctf' && <path d="M9 1L17 5V13L9 17L1 13V5L9 1Z" stroke={product.color} strokeWidth="1.5"/>}
+                                {product.id === 'courses' && <path d="M3 14V4M8 14V8M13 14V4M1 14H17" stroke={product.color} strokeWidth="1.5" strokeLinecap="round"/>}
+                                {product.id === 'recon' && <><circle cx="9" cy="9" r="7" stroke={product.color} strokeWidth="1.5"/><path d="M9 5V9L12 12" stroke={product.color} strokeWidth="1.5" strokeLinecap="round"/></>}
+                              </svg>
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-mono text-xs text-white">{product.id === 'ctf' ? ['SQL Injection Lab', 'XSS Challenge', 'Crypto Cipher'][j] : product.id === 'courses' ? ['Web Pentesting', 'Python Automation', 'CTF Fundamentals'][j] : ['Subdomain Enum', 'Port Scanner', 'CVE Lookup'][j]}</div>
+                              <div className="font-mono text-[10px]" style={{ color: product.color }}>{product.id === 'ctf' ? ['Web · Easy', 'Web · Medium', 'Crypto · Hard'][j] : product.id === 'courses' ? ['Free · 12hrs', 'Free · 8hrs', 'Free · 6hrs'][j] : ['Top 100 ports', 'All ports', 'CVE DB'][j]}</div>
+                            </div>
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                              <path d="M5 3L9 7L5 11" stroke="#3f3f46" strokeWidth="1.5" strokeLinecap="round"/>
+                            </svg>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SOCIAL PROOF ── */}
+      <section className="py-20 px-6" style={{ background: '#111116', borderTop: '1px solid #1e1e24', borderBottom: '1px solid #1e1e24' }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <span className="section-label">// PLATFORM OVERVIEW</span>
+            <h2 className="font-display font-bold text-3xl mt-3" style={{ color: '#f4f4f5' }}>
+              Everything you need to get started
+            </h2>
+          </div>
+          <div className="grid sm:grid-cols-3 gap-6">
+            {[
+              {
+                icon: (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L20 7V17L12 22L4 17V7L12 2Z" stroke="#06b6d4" strokeWidth="1.5"/>
+                    <path d="M8 12L11 15L16 9" stroke="#06b6d4" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                ),
+                title: 'CTF Platform',
+                desc: '6 live challenges across Web, Crypto, Network. Free to start. Competitive leaderboard.',
+                href: '/ctf',
+                color: '#06b6d4',
+              },
+              {
+                icon: (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M4 19V5M10 19V9M16 19V13M2 19H22" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                ),
+                title: 'Free Courses',
+                desc: '4 structured courses. No paid walls blocking fundamentals. Beginner to intermediate.',
+                href: '/courses',
+                color: '#f59e0b',
+              },
+              {
+                icon: (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <circle cx="11" cy="11" r="8" stroke="#22c55e" strokeWidth="1.5"/>
+                    <path d="M16 16L20 20" stroke="#22c55e" strokeWidth="1.5" strokeLinecap="round"/>
+                    <path d="M8 11H8.01M11 8V8.01M11 14V14.01" stroke="#22c55e" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                ),
+                title: 'Recon Scanner',
+                desc: '5 free scans per day. Subdomains, ports, CVE lookup, tech detection, PDF export.',
+                href: '/recon',
+                color: '#22c55e',
+              },
+            ].map(card => (
+              <a key={card.title} href={card.href}
+                className="card p-6 rounded-xl group">
+                <div className="mb-4">{card.icon}</div>
+                <h3 className="font-display font-semibold text-base mb-2" style={{ color: '#f4f4f5' }}>{card.title}</h3>
+                <p className="text-sm leading-relaxed mb-4" style={{ color: '#71717a' }}>{card.desc}</p>
+                <span className="font-mono text-xs transition-colors" style={{ color: card.color }}>
+                  Explore →
+                </span>
               </a>
             ))}
           </div>
         </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
-          <span className="font-mono text-[10px] text-[#333] tracking-widest uppercase">Scroll</span>
-          <div className="w-px h-8 bg-gradient-to-b from-[#00FF41]/40 to-transparent" />
-        </div>
-      </section>
-
-      {/* ── PRODUCTS DEEP DIVE ── */}
-      <section className="py-28 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="section-label">// WHAT WE BUILD</span>
-            <h2 className="font-mono font-black text-4xl md:text-5xl mt-3 mb-4">
-              Three <span className="text-[#00FF41]">Products</span>.
-              <br />One <span className="text-[#FFB700]">Ecosystem</span>.
-            </h2>
-            <p className="text-[#555] text-sm max-w-lg mx-auto">Each product stands alone. Together they form a complete learning and testing platform for web application security.</p>
-          </div>
-
-          {PRODUCTS.map((product, i) => (
-            <div key={product.id} className={`grid lg:grid-cols-2 gap-8 items-center mb-20 ${i % 2 === 1 ? 'lg:flex-row-reverse' : ''}`}>
-              {/* Info side */}
-              <div className={i % 2 === 1 ? 'lg:order-2' : ''}>
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="text-4xl">{product.icon}</span>
-                  <span className="font-mono text-[9px] tracking-widest uppercase px-2 py-0.5 border"
-                    style={{ borderColor: `${product.tierColor}40`, color: product.tierColor, background: `${product.tierColor}08` }}>
-                    {product.tier}
-                  </span>
-                </div>
-                <h3 className="font-mono font-black text-3xl mb-2">{product.name}</h3>
-                <p className="font-mono text-[11px] text-[#00FF41] tracking-wider mb-4">{product.tagline}</p>
-                <p className="text-[#666] text-sm leading-relaxed mb-6">{product.description}</p>
-                <div className="space-y-2 mb-8">
-                  {product.stats.map(s => (
-                    <div key={s} className="flex items-center gap-2 font-mono text-[12px] text-[#555]">
-                      <span style={{ color: product.tierColor }}>▸</span> {s}
-                    </div>
-                  ))}
-                </div>
-                <a href={product.href} className="font-mono text-sm py-2.5 px-6 border tracking-wider transition-all duration-200 inline-block"
-                  style={{ borderColor: product.tierColor, color: product.tierColor }}
-                  onMouseEnter={e => (e.currentTarget.style.background = `${product.tierColor}15`)}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                  {product.cta} →
-                </a>
-              </div>
-
-              {/* Visual placeholder */}
-              <div className={`glass border border-[#1A1A1A] h-72 flex items-center justify-center relative overflow-hidden ${i % 2 === 1 ? 'lg:order-1' : ''}`}>
-                <div className="absolute inset-0 opacity-10" style={{
-                  backgroundImage: `radial-gradient(circle at 50% 50%, ${product.tierColor}20 0%, transparent 60%)`,
-                }} />
-                <div className="text-center">
-                  <div className="text-6xl mb-4">{product.icon}</div>
-                  <div className="font-mono text-[11px] text-[#555]">{product.name} — Live Product</div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="border-t border-[#1A1A1A] py-10 px-6">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2">
-            <span className="text-[#00FF41] font-mono font-black">⬡</span>
-            <span className="font-mono text-sm font-bold tracking-[0.15em]">Sec<span className="text-[#00FF41]">Lab</span><span className="text-[#FFB700]">NG</span></span>
+      <footer className="px-6 py-16">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid sm:grid-cols-4 gap-10 mb-12">
+            {/* Brand */}
+            <div className="sm:col-span-1">
+              <div className="flex items-center gap-3 mb-4">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                  <path d="M14 2L25 8V20L14 26L3 20V8L14 2Z" stroke="#06b6d4" strokeWidth="1.5" fill="rgba(6,182,212,0.1)"/>
+                  <path d="M9 14L12 17L19 10" stroke="#06b6d4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span className="font-display font-bold text-sm" style={{ color: '#f4f4f5' }}>
+                  Sec<span style={{ color: '#06b6d4' }}>Lab</span><span style={{ color: '#f59e0b' }}>NG</span>
+                </span>
+              </div>
+              <p className="text-sm leading-relaxed" style={{ color: '#52525b' }}>
+                Nigerian cybersecurity platform. Free tools, free education, built byMuhammad Aminu Musa.
+              </p>
+            </div>
+
+            {/* Products */}
+            <div>
+              <p className="font-mono text-xs uppercase tracking-widest mb-4" style={{ color: '#3f3f46' }}>Products</p>
+              <div className="space-y-3">
+                {[['CTF Platform', '/ctf'], ['Free Courses', '/courses'], ['Recon Scanner', '/recon']].map(([label, href]) => (
+                  <a key={label} href={href} className="block text-sm transition-colors" style={{ color: '#71717a' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = '#f4f4f5')}
+                    onMouseLeave={e => (e.currentTarget.style.color = '#71717a')}>
+                    {label}
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Resources */}
+            <div>
+              <p className="font-mono text-xs uppercase tracking-widest mb-4" style={{ color: '#3f3f46' }}>Resources</p>
+              <div className="space-y-3">
+                {[['GitHub', 'https://github.com/mamuaminu'], ['Contact', 'mailto:Mamuaminu31@gmail.com']].map(([label, href]) => (
+                  <a key={label} href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer"
+                    className="block text-sm transition-colors" style={{ color: '#71717a' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = '#f4f4f5')}
+                    onMouseLeave={e => (e.currentTarget.style.color = '#71717a')}>
+                    {label}
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Mission */}
+            <div>
+              <p className="font-mono text-xs uppercase tracking-widest mb-4" style={{ color: '#3f3f46' }}>Mission</p>
+              <p className="text-sm leading-relaxed" style={{ color: '#52525b' }}>
+                Making cybersecurity education accessible to every Nigerian and African developer who wants to learn.
+              </p>
+            </div>
           </div>
-          <div className="flex flex-wrap justify-center gap-6 font-mono text-[11px] text-[#444]">
-            <a href="/ctf" className="hover:text-[#00FF41] transition-colors">CTF Platform</a>
-            <a href="/courses" className="hover:text-[#00FF41] transition-colors">Training</a>
-            <a href="/recon" className="hover:text-[#00FF41] transition-colors">Vulnerability Recon</a>
-            <a href="https://github.com/mamuaminu" target="_blank" rel="noopener noreferrer" className="hover:text-[#00FF41] transition-colors">GitHub</a>
-            <a href="mailto:Mamuaminu31@gmail.com" className="hover:text-[#00FF41] transition-colors">Contact</a>
-          </div>
-          <div className="font-mono text-[10px] text-[#333]">
-            © 2026 SecLab Nigeria · Built in Nigeria
+
+          <div className="divider mb-8" />
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="font-mono text-xs" style={{ color: '#3f3f46' }}>
+              © 2026 SecLab Nigeria. Built in Nigeria.
+            </p>
+            <div className="flex items-center gap-4">
+              <a href="https://github.com/mamuaminu" target="_blank" rel="noopener noreferrer" className="font-mono text-xs transition-colors" style={{ color: '#3f3f46' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#06b6d4')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#3f3f46')}>
+                GitHub
+              </a>
+              <a href="mailto:Mamuaminu31@gmail.com" className="font-mono text-xs transition-colors" style={{ color: '#3f3f46' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#06b6d4')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#3f3f46')}>
+                Contact
+              </a>
+            </div>
           </div>
         </div>
       </footer>

@@ -3,260 +3,303 @@
 import { useState } from 'react';
 
 const PLANS = [
-  { name: 'Free', price: '$0', period: 'forever', scans: '5 scans/day', domains: '1 domain/scan', api: false, features: ['Subdomain enumeration', 'Port scan (top 100)', 'Technology detection', 'Email harvest (basic)', 'PDF report'], cta: 'Start Free', color: '#888888' },
-  { name: 'Pro', price: '$25', period: '/month', scans: '100 scans/day', domains: '5 domains/scan', api: false, features: ['Everything in Free', 'Full port scan (all 65535)', 'Service version detection', 'CVE lookup', 'XML/JSON export', 'Priority support'], cta: 'Go Pro', color: '#00FF41', highlight: true },
-  { name: 'API', price: '$75', period: '/month', scans: 'Unlimited', domains: 'Unlimited', api: true, features: ['Everything in Pro', 'REST API access', 'Webhook results', 'Bulk scan', 'Custom scan profiles', 'Dedicated support'], cta: 'Get API Key', color: '#FFB700' },
+  { name: 'Free', price: '$0', period: 'forever', scans: '5/day', features: ['Subdomain enumeration', 'Top 100 ports', 'Tech detection', 'Email harvest (basic)', 'PDF report'], color: '#71717a' },
+  { name: 'Pro', price: '$25', period: '/month', scans: '100/day', features: ['Everything in Free', 'All 65,535 ports', 'CVE lookup', 'Service versioning', 'XML/JSON export', 'Priority support'], color: '#06b6d4', highlight: true },
+  { name: 'API', price: '$75', period: '/month', scans: 'Unlimited', features: ['Everything in Pro', 'REST API access', 'Webhook delivery', 'Bulk scanning', 'Custom profiles', 'Dedicated support'], color: '#f59e0b' },
 ];
 
-const SAMPLE_RESULTS = {
+const SAMPLE = {
   domain: 'example.com',
   ip: '93.184.216.34',
-  country: 'United States',
   asn: 'AS15135 Verizon',
+  country: 'United States',
   openPorts: [80, 443, 8080],
   subdomains: ['www.example.com', 'mail.example.com', 'api.example.com', 'cdn.example.com', 'admin.example.com'],
-  technologies: [
+  tech: [
     { name: 'nginx', version: '1.25.3', category: 'Web Server' },
     { name: 'Cloudflare', version: null, category: 'CDN/WAF' },
-    { name: 'React', version: '18.2.0', category: 'JavaScript Framework' },
-    { name: 'Amazon S3', version: null, category: 'Cloud Storage' },
+    { name: 'React', version: '18.2.0', category: 'JS Framework' },
   ],
   cves: [
-    { id: 'CVE-2023-44487', severity: 'CRITICAL', cvss: 8.6, title: 'HTTP/2 Rapid Reset Attack', product: 'nginx < 1.24.0' },
+    { id: 'CVE-2023-44487', severity: 'CRITICAL', cvss: 8.6, title: 'HTTP/2 Rapid Reset', product: 'nginx < 1.24.0' },
     { id: 'CVE-2023-46747', severity: 'HIGH', cvss: 8.8, title: 'nginx ngx_http_js_module', product: 'nginx < 1.24.0' },
   ],
   emails: ['contact@example.com', 'admin@example.com', 'support@example.com'],
 };
 
-type ScanResult = typeof SAMPLE_RESULTS | null;
-
-function simulateScan(domain: string): Promise<typeof SAMPLE_RESULTS> {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      const result = JSON.parse(JSON.stringify(SAMPLE_RESULTS));
-      result.domain = domain;
-      resolve(result);
-    }, 2200);
-  });
+function sevColor(s: string) {
+  return s === 'CRITICAL' ? '#ef4444' : s === 'HIGH' ? '#f59e0b' : s === 'MEDIUM' ? '#06b6d4' : '#22c55e';
 }
 
 export default function ReconPage() {
   const [domain, setDomain] = useState('');
   const [scanning, setScanning] = useState(false);
-  const [results, setResults] = useState<ScanResult>(null);
+  const [results, setResults] = useState<typeof SAMPLE | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'ports' | 'subdomains' | 'tech' | 'cves' | 'emails'>('overview');
   const [freeScans, setFreeScans] = useState(5);
 
   const runScan = async () => {
     const d = domain.trim().replace(/^https?:\/\//, '').split('/')[0];
     if (!d) return;
-    if (freeScans <= 0) {
-      alert('Daily free scan limit reached. Upgrade to Pro for 100 scans/day.');
-      return;
-    }
     setScanning(true);
     setResults(null);
-    const res = await simulateScan(d);
+    await new Promise(r => setTimeout(r, 2200));
+    const res = JSON.parse(JSON.stringify(SAMPLE));
+    res.domain = d;
     setResults(res);
     setFreeScans(n => n - 1);
     setScanning(false);
     setActiveTab('overview');
   };
 
-  const severityColor = (s: string) =>
-    s === 'CRITICAL' ? '#FF4444' : s === 'HIGH' ? '#FFB700' : s === 'MEDIUM' ? '#00BFFF' : '#00FF41';
-
   return (
-    <div className="min-h-screen bg-black text-[#E8E8E8]">
-      {/* Header */}
-      <div className="border-b border-[#1A1A1A] px-6 py-6">
+    <div className="min-h-screen" style={{ background: '#09090b' }}>
+
+      {/* NAV */}
+      <nav className="fixed top-0 left-0 right-0 z-50 h-16 flex items-center px-6"
+        style={{ background: 'rgba(9,9,11,0.9)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #1e1e24' }}>
+        <div className="max-w-6xl mx-auto w-full flex items-center justify-between">
+          <a href="/" className="flex items-center gap-3">
+            <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
+              <path d="M14 2L25 8V20L14 26L3 20V8L14 2Z" stroke="#06b6d4" strokeWidth="1.5" fill="rgba(6,182,212,0.1)"/>
+              <path d="M9 14L12 17L19 10" stroke="#06b6d4" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            <span className="font-display font-bold text-sm" style={{ color: '#f4f4f5' }}>
+              Sec<span style={{ color: '#06b6d4' }}>Lab</span><span style={{ color: '#f59e0b' }}>NG</span>
+            </span>
+          </a>
+          <div className="flex items-center gap-6">
+            <a href="/ctf" className="nav-link">CTF</a>
+            <a href="/courses" className="nav-link">Courses</a>
+            <a href="/recon" className="nav-link" style={{ color: '#06b6d4' }}>Recon</a>
+          </div>
+        </div>
+      </nav>
+
+      {/* HEADER */}
+      <div className="pt-32 pb-0 px-6" style={{ borderBottom: '1px solid #1e1e24' }}>
         <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between">
+          <span className="section-label">// VULNERABILITY RECON</span>
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mt-3 mb-8">
             <div>
-              <span className="section-label">// VULNERABILITY RECON SAAS</span>
-              <h1 className="font-mono font-black text-3xl mt-2">
-                <span className="text-[#00FF41]">Sec</span>Lab <span className="text-[#FFB700]">Recon</span>
+              <h1 className="font-display font-bold text-4xl" style={{ color: '#f4f4f5' }}>
+                <span style={{ color: '#06b6d4' }}>Sec</span>Lab <span style={{ color: '#22c55e' }}>Recon</span>
               </h1>
-              <p className="text-[#555] text-sm font-mono mt-1">Automated vulnerability surface analysis. Subdomains, ports, CVEs, tech stack.</p>
+              <p className="font-mono text-sm mt-1" style={{ color: '#52525b' }}>
+                Automated attack surface analysis. Subdomains, ports, CVE lookup, tech fingerprinting.
+              </p>
             </div>
-            <div className="text-right">
-              <div className="font-mono text-[10px] text-[#555] uppercase tracking-wider mb-1">Free Scans Today</div>
-              <div className="font-mono text-2xl text-[#00FF41] font-black">{freeScans}/5</div>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <div className="font-mono text-[10px] uppercase tracking-widest mb-1" style={{ color: '#3f3f46' }}>Free Scans</div>
+                <div className="font-display font-bold text-2xl" style={{ color: '#22c55e' }}>{freeScans}/5</div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Scanner input */}
-      <div className="border-b border-[#1A1A1A] px-6 py-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="glass border border-[#1A1A1A] p-6 max-w-3xl mx-auto">
-            <p className="font-mono text-[10px] text-[#555] uppercase tracking-wider mb-3">Enter target domain</p>
+      {/* SCANNER INPUT */}
+      <div className="px-6 py-8" style={{ borderBottom: '1px solid #1e1e24' }}>
+        <div className="max-w-3xl mx-auto">
+          <div className="rounded-2xl p-6" style={{ background: '#111116', border: '1px solid #1e1e24' }}>
+            <p className="font-mono text-xs uppercase tracking-widest mb-3" style={{ color: '#3f3f46' }}>Target Domain</p>
             <div className="flex gap-3">
               <input
                 value={domain}
                 onChange={e => setDomain(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && runScan()}
                 placeholder="target.com"
-                className="tool-input flex-1 text-base"
+                className="tool-input flex-1"
               />
               <button
                 onClick={runScan}
                 disabled={scanning}
-                className="btn-neon whitespace-nowrap min-w-[120px]">
+                className="btn-primary whitespace-nowrap"
+                style={{ background: '#22c55e' }}>
                 {scanning ? (
-                  <span className="flex items-center gap-2 justify-center">
-                    <span className="animate-spin">⟳</span> Scanning
+                  <span className="flex items-center gap-2">
+                    <svg className="animate-spin" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <path d="M7 1V4M7 10V13M1 7H4M10 7H13M3.05 3.05L5.28 5.28M8.72 8.72L10.95 10.95M3.05 10.95L5.28 8.72M8.72 5.28L10.95 3.05"
+                        stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                    Scanning
                   </span>
-                ) : 'Scan →'}
+                ) : (
+                  <>
+                    Scan
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <path d="M3 7H11M8 4L11 7L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                  </>
+                )}
               </button>
             </div>
-            <div className="flex gap-4 mt-3">
-              {['Subdomains', 'Open Ports', 'Tech Stack', 'CVE Lookup', 'Email Harvest'].map(item => (
-                <span key={item} className="font-mono text-[10px] text-[#444]">{item} ·</span>
+            <div className="flex gap-3 mt-3 flex-wrap">
+              {['Subdomains', 'Open Ports', 'Tech Stack', 'CVE Lookup', 'Email Harvest'].map(f => (
+                <span key={f} className="font-mono text-[10px]" style={{ color: '#3f3f46' }}>{f} ·</span>
               ))}
-              <span className="font-mono text-[10px] text-[#333]">Powered by SecLab Recon API</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Results */}
-      {results && (
+      {/* SCANNING ANIMATION */}
+      {scanning && (
+        <div className="max-w-6xl mx-auto px-6 py-20 text-center">
+          <div className="inline-block mb-6">
+            <svg className="animate-spin" width="48" height="48" viewBox="0 0 48 48" fill="none">
+              <path d="M24 4V10M24 38V44M4 24H10M38 24H44M8.5 8.5L13 13M35 35L39.5 39.5M8.5 39.5L13 35M35 13L39.5 8.5"
+                stroke="#22c55e" strokeWidth="2" strokeLinecap="round"/>
+              <circle cx="24" cy="24" r="8" stroke="#22c55e" strokeWidth="1.5" strokeDasharray="20 10"/>
+            </svg>
+          </div>
+          <p className="font-display font-semibold text-lg mb-2" style={{ color: '#f4f4f5' }}>Scanning target...</p>
+          <div className="max-w-sm mx-auto space-y-2 text-left mt-6">
+            {['Resolving DNS', 'Enumerating subdomains', 'Scanning top ports', 'Fingerprinting technologies', 'Checking CVE database'].map((step, i) => (
+              <div key={i} className="flex items-center gap-3 font-mono text-xs p-3 rounded-lg"
+                style={{ background: '#111116', border: '1px solid #1e1e24', color: '#52525b' }}>
+                <span style={{ color: '#22c55e' }}>◌</span> {step}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* RESULTS */}
+      {results && !scanning && (
         <div className="max-w-6xl mx-auto px-6 py-8">
-          {/* Domain info banner */}
-          <div className="glass border border-[#00FF41]/20 p-5 mb-6 flex flex-wrap items-center gap-6">
-            <div>
-              <div className="font-mono text-[10px] text-[#555] uppercase tracking-wider mb-1">Target</div>
-              <div className="font-mono font-bold text-[#E8E8E8] text-lg">{results.domain}</div>
-            </div>
-            <div>
-              <div className="font-mono text-[10px] text-[#555] uppercase tracking-wider mb-1">IP Address</div>
-              <div className="font-mono text-sm text-[#00FF41]">{results.ip}</div>
-            </div>
-            <div>
-              <div className="font-mono text-[10px] text-[#555] uppercase tracking-wider mb-1">ASN</div>
-              <div className="font-mono text-sm text-[#888]">{results.asn}</div>
-            </div>
-            <div>
-              <div className="font-mono text-[10px] text-[#555] uppercase tracking-wider mb-1">Country</div>
-              <div className="font-mono text-sm text-[#888]">{results.country}</div>
-            </div>
-            <div>
-              <div className="font-mono text-[10px] text-[#555] uppercase tracking-wider mb-1">Open Ports</div>
-              <div className="font-mono text-sm text-[#FFB700]">{results.openPorts.join(', ')}</div>
-            </div>
+          {/* Domain banner */}
+          <div className="rounded-2xl p-5 mb-6 flex flex-wrap items-center gap-6"
+            style={{ background: '#111116', border: '1px solid rgba(34,197,94,0.2)' }}>
+            {[
+              ['Target', results.domain, '#f4f4f5'],
+              ['IP', results.ip, '#22c55e'],
+              ['ASN', results.asn, '#71717a'],
+              ['Country', results.country, '#71717a'],
+              ['Open Ports', results.openPorts.join(', '), '#f59e0b'],
+            ].map(([label, val, color]) => (
+              <div key={label as string}>
+                <div className="font-mono text-[10px] uppercase tracking-widest mb-1" style={{ color: '#3f3f46' }}>{label}</div>
+                <div className="font-mono text-sm font-medium" style={{ color }}>{val}</div>
+              </div>
+            ))}
             <div className="ml-auto">
-              <button className="font-mono text-[11px] border border-[#00FF41]/30 text-[#00FF41] px-4 py-2 hover:bg-[#00FF41]/10 transition-all">
-                ↓ Download PDF Report
+              <button className="font-mono text-xs px-4 py-2 rounded-lg transition-all"
+                style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.2)' }}>
+                ↓ Download PDF
               </button>
             </div>
           </div>
 
-          {/* Result tabs */}
-          <div className="flex flex-wrap gap-1 border-b border-[#1A1A1A] pb-0 mb-6">
+          {/* Tab bar */}
+          <div className="flex flex-wrap gap-1 border-b border-[#1e1e24] pb-0 mb-6">
             {[
-              ['overview', 'Overview'],
-              ['ports', 'Ports'],
+              ['overview', `Overview`],
+              ['ports', `Ports (${results.openPorts.length})`],
               ['subdomains', `Subdomains (${results.subdomains.length})`],
-              ['tech', `Tech Stack (${results.technologies.length})`],
+              ['tech', `Tech (${results.tech.length})`],
               ['cves', `CVEs (${results.cves.length})`],
               ['emails', `Emails (${results.emails.length})`],
             ].map(([id, label]) => (
               <button key={id} onClick={() => setActiveTab(id as typeof activeTab)}
-                className={`font-mono text-[11px] pb-3 px-3 border-b-2 transition-all duration-200 ${
-                  activeTab === id ? 'border-[#00FF41] text-[#00FF41]' : 'border-transparent text-[#555] hover:text-[#888]'
-                }`}>
+                className="font-mono text-xs pb-3 px-3 border-b-2 transition-all"
+                style={{
+                  borderColor: activeTab === id ? '#22c55e' : 'transparent',
+                  color: activeTab === id ? '#22c55e' : '#52525b',
+                }}>
                 {label}
               </button>
             ))}
           </div>
 
-          {/* Tab content */}
+          {/* Overview */}
           {activeTab === 'overview' && (
             <div className="grid sm:grid-cols-2 gap-5">
-              <div className="glass border border-[#1A1A1A] p-5">
-                <div className="font-mono text-[10px] text-[#555] uppercase tracking-wider mb-3">Open Ports</div>
+              <div className="rounded-xl p-5" style={{ background: '#111116', border: '1px solid #1e1e24' }}>
+                <p className="font-mono text-[10px] uppercase tracking-widest mb-4" style={{ color: '#3f3f46' }}>Open Ports</p>
                 <div className="space-y-2">
                   {results.openPorts.map(port => (
                     <div key={port} className="flex items-center gap-3 font-mono text-sm">
-                      <span className="text-[#00FF41]">▸</span>
-                      <span className="text-[#E8E8E8]">Port {port}</span>
-                      <span className="text-[#555] ml-auto">{port === 80 ? 'HTTP' : port === 443 ? 'HTTPS' : port === 8080 ? 'HTTP-Alt' : 'Unknown'}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="glass border border-[#1A1A1A] p-5">
-                <div className="font-mono text-[10px] text-[#555] uppercase tracking-wider mb-3">Technology Stack</div>
-                <div className="space-y-2">
-                  {results.technologies.map(t => (
-                    <div key={t.name} className="flex items-center gap-3 font-mono text-sm">
-                      <span className="text-[#00FF41]">▸</span>
-                      <span className="text-[#E8E8E8]">{t.name}</span>
-                      {t.version && <span className="text-[#555] text-[11px]">v{t.version}</span>}
-                      <span className="ml-auto font-mono text-[10px] text-[#555] bg-[#111] px-2 py-0.5">{t.category}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="glass border border-[#1A1A1A] p-5">
-                <div className="font-mono text-[10px] text-[#555] uppercase tracking-wider mb-3">Discovered CVEs</div>
-                {results.cves.map(cve => (
-                  <div key={cve.id} className="mb-3 p-3 border border-[#1A1A1A]">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-mono text-[10px] text-[#E8E8E8]">{cve.id}</span>
-                      <span className="font-mono text-[9px] px-1.5 py-0.5 border" style={{ borderColor: `${severityColor(cve.severity)}40`, color: severityColor(cve.severity) }}>
-                        {cve.severity} · CVSS {cve.cvss}
+                      <span style={{ color: '#22c55e' }}>▸</span>
+                      <span style={{ color: '#f4f4f5' }}>Port {port}</span>
+                      <span className="ml-auto font-mono text-xs" style={{ color: '#52525b' }}>
+                        {port === 80 ? 'HTTP' : port === 443 ? 'HTTPS' : 'HTTP-Alt'}
                       </span>
                     </div>
-                    <div className="font-mono text-[11px] text-[#666]">{cve.title}</div>
-                    <div className="font-mono text-[10px] text-[#444] mt-1">{cve.product}</div>
+                  ))}
+                </div>
+              </div>
+              <div className="rounded-xl p-5" style={{ background: '#111116', border: '1px solid #1e1e24' }}>
+                <p className="font-mono text-[10px] uppercase tracking-widest mb-4" style={{ color: '#3f3f46' }}>Technology Stack</p>
+                <div className="space-y-2">
+                  {results.tech.map(t => (
+                    <div key={t.name} className="flex items-center gap-3 font-mono text-sm">
+                      <span style={{ color: '#22c55e' }}>▸</span>
+                      <span style={{ color: '#f4f4f5' }}>{t.name}</span>
+                      {t.version && <span className="font-mono text-[11px]" style={{ color: '#52525b' }}>v{t.version}</span>}
+                      <span className="ml-auto font-mono text-[10px] px-2 py-0.5 rounded" style={{ background: '#16161c', color: '#52525b' }}>{t.category}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="rounded-xl p-5" style={{ background: '#111116', border: '1px solid #1e1e24' }}>
+                <p className="font-mono text-[10px] uppercase tracking-widest mb-4" style={{ color: '#3f3f46' }}>Discovered CVEs</p>
+                {results.cves.map(cve => (
+                  <div key={cve.id} className="mb-3 p-3 rounded-lg" style={{ background: '#16161c', border: '1px solid #1e1e24' }}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-mono text-xs" style={{ color: '#f4f4f5' }}>{cve.id}</span>
+                      <span className="font-mono text-[9px] px-1.5 py-0.5 rounded"
+                        style={{ background: `${sevColor(cve.severity)}15`, color: sevColor(cve.severity), border: `1px solid ${sevColor(cve.severity)}30` }}>
+                        {cve.severity} · {cve.cvss}
+                      </span>
+                    </div>
+                    <div className="font-mono text-[11px]" style={{ color: '#71717a' }}>{cve.title}</div>
+                    <div className="font-mono text-[10px] mt-1" style={{ color: '#3f3f46' }}>{cve.product}</div>
                   </div>
                 ))}
               </div>
-              <div className="glass border border-[#1A1A1A] p-5">
-                <div className="font-mono text-[10px] text-[#555] uppercase tracking-wider mb-3">Subdomains ({results.subdomains.length})</div>
-                <div className="space-y-1.5">
-                  {results.subdomains.map(s => (
-                    <div key={s} className="font-mono text-[12px] text-[#666] flex items-center gap-2">
-                      <span className="text-[#333]">▸</span>
-                      <span className="hover:text-[#00FF41] cursor-pointer transition-colors">{s}</span>
-                    </div>
-                  ))}
-                </div>
+              <div className="rounded-xl p-5" style={{ background: '#111116', border: '1px solid #1e1e24' }}>
+                <p className="font-mono text-[10px] uppercase tracking-widest mb-4" style={{ color: '#3f3f46' }}>Subdomains ({results.subdomains.length})</p>
+                {results.subdomains.map(s => (
+                  <div key={s} className="font-mono text-sm flex items-center gap-2 py-1.5" style={{ color: '#71717a' }}>
+                    <span style={{ color: '#22c55e' }}>▸</span> {s}
+                  </div>
+                ))}
               </div>
             </div>
           )}
 
           {activeTab === 'ports' && (
-            <div className="glass border border-[#1A1A1A] p-5">
-              <div className="font-mono text-[10px] text-[#555] uppercase tracking-wider mb-4">Full Port Scan</div>
+            <div className="rounded-xl p-5" style={{ background: '#111116', border: '1px solid #1e1e24' }}>
+              <p className="font-mono text-[10px] uppercase tracking-widest mb-4" style={{ color: '#3f3f46' }}>Open Ports</p>
               <div className="grid sm:grid-cols-3 gap-3">
                 {results.openPorts.map(port => (
-                  <div key={port} className="border border-[#1A1A1A] p-4 text-center">
-                    <div className="font-mono text-xl text-[#00FF41] font-black">{port}</div>
-                    <div className="font-mono text-[11px] text-[#555] mt-1">{port === 80 ? 'HTTP' : port === 443 ? 'HTTPS' : 'HTTP-Alt'}</div>
-                    <div className="font-mono text-[10px] text-[#333] mt-2">{results.ip}</div>
+                  <div key={port} className="rounded-lg p-5 text-center" style={{ background: '#16161c', border: '1px solid #1e1e24' }}>
+                    <div className="font-display font-bold text-3xl mb-1" style={{ color: '#22c55e' }}>{port}</div>
+                    <div className="font-mono text-[11px]" style={{ color: '#52525b' }}>{port === 80 ? 'HTTP' : port === 443 ? 'HTTPS' : 'HTTP-Alt'}</div>
                   </div>
                 ))}
               </div>
-              <p className="font-mono text-[11px] text-[#444] mt-5 text-center">
+              <p className="font-mono text-xs text-center mt-5" style={{ color: '#3f3f46' }}>
                 Upgrade to Pro for full 65,535 port scan + service version detection →
               </p>
             </div>
           )}
 
           {activeTab === 'subdomains' && (
-            <div className="glass border border-[#1A1A1A] p-5">
-              <div className="font-mono text-[10px] text-[#555] uppercase tracking-wider mb-4">Discovered Subdomains</div>
+            <div className="rounded-xl p-5" style={{ background: '#111116', border: '1px solid #1e1e24' }}>
+              <p className="font-mono text-[10px] uppercase tracking-widest mb-4" style={{ color: '#3f3f46' }}>Discovered Subdomains</p>
               <div className="space-y-2">
                 {results.subdomains.map(s => (
-                  <div key={s} className="flex items-center gap-4 p-3 border border-[#1A1A1A] hover:border-[#00FF41]/20 transition-colors">
-                    <span className="text-[#00FF41]">▸</span>
-                    <span className="font-mono text-sm text-[#E8E8E8] flex-1">{s}</span>
-                    <span className="font-mono text-[10px] text-[#444]">A record</span>
-                    <span className="font-mono text-[10px] text-[#00FF41] cursor-pointer hover:underline">Scan →</span>
+                  <div key={s} className="flex items-center gap-4 p-3 rounded-lg transition-colors cursor-pointer"
+                    style={{ background: '#16161c', border: '1px solid #1e1e24' }}
+                    onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(34,197,94,0.2)')}
+                    onMouseLeave={e => (e.currentTarget.style.borderColor = '#1e1e24')}>
+                    <span style={{ color: '#22c55e' }}>▸</span>
+                    <span className="font-mono text-sm flex-1" style={{ color: '#f4f4f5' }}>{s}</span>
+                    <span className="font-mono text-[10px]" style={{ color: '#3f3f46' }}>A record</span>
+                    <span className="font-mono text-[10px]" style={{ color: '#22c55e' }}>Scan →</span>
                   </div>
                 ))}
               </div>
@@ -264,17 +307,17 @@ export default function ReconPage() {
           )}
 
           {activeTab === 'tech' && (
-            <div className="glass border border-[#1A1A1A] p-5">
-              <div className="font-mono text-[10px] text-[#555] uppercase tracking-wider mb-4">Technology Stack Detection</div>
+            <div className="rounded-xl p-5" style={{ background: '#111116', border: '1px solid #1e1e24' }}>
+              <p className="font-mono text-[10px] uppercase tracking-widest mb-4" style={{ color: '#3f3f46' }}>Technology Stack</p>
               <div className="space-y-3">
-                {results.technologies.map(t => (
-                  <div key={t.name} className="flex items-center gap-5 p-4 border border-[#1A1A1A]">
+                {results.tech.map(t => (
+                  <div key={t.name} className="flex items-center gap-5 p-4 rounded-lg" style={{ background: '#16161c', border: '1px solid #1e1e24' }}>
                     <div className="flex-1">
-                      <div className="font-mono font-bold text-[#E8E8E8] text-sm">{t.name}</div>
-                      {t.version && <div className="font-mono text-[11px] text-[#555]">Version: {t.version}</div>}
+                      <div className="font-display font-semibold text-sm" style={{ color: '#f4f4f5' }}>{t.name}</div>
+                      {t.version && <div className="font-mono text-[11px]" style={{ color: '#52525b' }}>v{t.version}</div>}
                     </div>
-                    <span className="font-mono text-[10px] text-[#555] bg-[#111] px-3 py-1">{t.category}</span>
-                    <span className="font-mono text-[10px] text-[#00FF41]">DETECTED</span>
+                    <span className="font-mono text-[10px] px-3 py-1 rounded" style={{ background: '#0d0d0f', color: '#52525b' }}>{t.category}</span>
+                    <span className="font-mono text-[10px]" style={{ color: '#22c55e' }}>DETECTED</span>
                   </div>
                 ))}
               </div>
@@ -284,32 +327,34 @@ export default function ReconPage() {
           {activeTab === 'cves' && (
             <div className="space-y-4">
               {results.cves.map(cve => (
-                <div key={cve.id} className="glass border border-[#1A1A1A] p-6">
+                <div key={cve.id} className="rounded-xl p-6" style={{ background: '#111116', border: '1px solid #1e1e24' }}>
                   <div className="flex items-start gap-4 mb-3">
                     <div className="flex-1">
-                      <div className="font-mono font-bold text-[#E8E8E8] text-sm mb-1">{cve.id}</div>
-                      <div className="font-mono text-[11px] text-[#555]">{cve.title}</div>
+                      <div className="font-display font-bold text-sm mb-1" style={{ color: '#f4f4f5' }}>{cve.id}</div>
+                      <div className="font-mono text-[11px]" style={{ color: '#71717a' }}>{cve.title}</div>
                     </div>
                     <div className="text-right">
-                      <div className="font-mono text-sm font-black" style={{ color: severityColor(cve.severity) }}>{cve.severity}</div>
-                      <div className="font-mono text-[11px] text-[#555]">CVSS {cve.cvss}</div>
+                      <div className="font-display font-bold text-base" style={{ color: sevColor(cve.severity) }}>{cve.severity}</div>
+                      <div className="font-mono text-[11px]" style={{ color: '#52525b' }}>CVSS {cve.cvss}</div>
                     </div>
                   </div>
-                  <div className="font-mono text-[11px] text-[#444] bg-[#0D0D0D] p-3">Affected: {cve.product}</div>
+                  <div className="font-mono text-[11px] p-3 rounded-lg" style={{ background: '#16161c', color: '#52525b' }}>
+                    Affected: {cve.product}
+                  </div>
                 </div>
               ))}
             </div>
           )}
 
           {activeTab === 'emails' && (
-            <div className="glass border border-[#1A1A1A] p-5">
-              <div className="font-mono text-[10px] text-[#555] uppercase tracking-wider mb-4">Email Harvest</div>
+            <div className="rounded-xl p-5" style={{ background: '#111116', border: '1px solid #1e1e24' }}>
+              <p className="font-mono text-[10px] uppercase tracking-widest mb-4" style={{ color: '#3f3f46' }}>Email Harvest</p>
               <div className="space-y-2">
                 {results.emails.map(email => (
-                  <div key={email} className="flex items-center gap-3 p-3 border border-[#1A1A1A]">
-                    <span className="text-[#00FF41]">▸</span>
-                    <span className="font-mono text-sm text-[#E8E8E8]">{email}</span>
-                    <span className="ml-auto font-mono text-[10px] text-[#555]">SMTP MX check: ✓</span>
+                  <div key={email} className="flex items-center gap-3 p-3 rounded-lg" style={{ background: '#16161c', border: '1px solid #1e1e24' }}>
+                    <span style={{ color: '#22c55e' }}>▸</span>
+                    <span className="font-mono text-sm" style={{ color: '#f4f4f5' }}>{email}</span>
+                    <span className="ml-auto font-mono text-[10px]" style={{ color: '#22c55e' }}>✓ SMTP valid</span>
                   </div>
                 ))}
               </div>
@@ -318,44 +363,44 @@ export default function ReconPage() {
         </div>
       )}
 
-      {/* Scanning animation */}
-      {scanning && (
-        <div className="max-w-6xl mx-auto px-6 py-20 text-center">
-          <div className="inline-block animate-spin text-5xl text-[#00FF41] mb-6">⟳</div>
-          <p className="font-mono text-[#555] text-sm">Enumerating subdomains...</p>
-          <div className="max-w-md mx-auto mt-6 space-y-2 text-left">
-            {['DNS resolution', 'Subdomain bruteforce', 'Port scan (top 100)', 'Technology fingerprinting', 'CVE database lookup'].map((step, i) => (
-              <div key={i} className="font-mono text-[11px] text-[#333] flex items-center gap-2">
-                <span className="text-[#00FF41]">◌</span> {step}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Pricing */}
+      {/* PRICING */}
       {!scanning && (
-        <div className="border-t border-[#1A1A1A] mt-20 px-6 py-10">
+        <div className="px-6 py-16" style={{ borderTop: '1px solid #1e1e24' }}>
           <div className="max-w-5xl mx-auto">
-            <p className="font-mono text-center text-[10px] tracking-widest uppercase text-[#555] mb-8">SCAN PLANS</p>
+            <div className="text-center mb-10">
+              <span className="section-label">// SCAN PLANS</span>
+              <h2 className="font-display font-bold text-3xl mt-3" style={{ color: '#f4f4f5' }}>Start free. Scale as needed.</h2>
+            </div>
             <div className="grid md:grid-cols-3 gap-5">
               {PLANS.map(plan => (
                 <div key={plan.name}
-                  className={`glass border p-6 text-center ${plan.highlight ? 'border-[#00FF41]/40' : 'border-[#1A1A1A]'}`}>
-                  <div className="font-mono text-sm font-bold mb-1" style={{ color: plan.color }}>{plan.name}</div>
-                  <div className="font-mono font-black text-3xl mb-1">{plan.price}<span className="text-sm font-normal text-[#555]">{plan.period}</span></div>
-                  <div className="font-mono text-[11px] text-[#555] mb-4">{plan.scans} · {plan.domains}</div>
-                  <div className="h-px bg-[#1A1A1A] mb-4" />
+                  className="rounded-2xl p-6 text-center"
+                  style={{
+                    background: '#111116',
+                    border: `1px solid ${plan.highlight ? 'rgba(6,182,212,0.3)' : '#1e1e24'}`,
+                  }}>
+                  <div className="font-display font-semibold text-base mb-1" style={{ color: plan.color }}>{plan.name}</div>
+                  <div className="font-display font-black text-4xl mb-1" style={{ color: plan.color }}>
+                    {plan.price}
+                    <span className="text-sm font-normal" style={{ color: '#52525b' }}>{plan.period}</span>
+                  </div>
+                  <div className="font-mono text-xs mb-4" style={{ color: '#52525b' }}>{plan.scans}</div>
+                  <div className="h-px mb-4" style={{ background: '#1e1e24' }} />
                   {plan.features.map(f => (
-                    <div key={f} className="font-mono text-[11px] text-[#666] py-1 flex items-center gap-2">
-                      <span style={{ color: plan.color }}>✓</span> {f}
+                    <div key={f} className="flex items-center gap-2 font-mono text-[11px] py-1.5" style={{ color: '#71717a' }}>
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                        <path d="M2 6L5 9L10 3" stroke={plan.color} strokeWidth="1.5" strokeLinecap="round"/>
+                      </svg>
+                      {f}
                     </div>
                   ))}
-                  <button className="w-full mt-6 font-mono text-[11px] py-2.5 tracking-wider border transition-all duration-200"
-                    style={{ borderColor: plan.color, color: plan.color }}
-                    onMouseEnter={e => (e.currentTarget.style.background = `${plan.color}15`)}
-                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                    {plan.cta}
+                  <button className="w-full mt-6 py-3 rounded-lg font-semibold text-sm transition-all"
+                    style={{
+                      background: plan.highlight ? plan.color : 'transparent',
+                      color: plan.highlight ? '#000' : plan.color,
+                      border: `1px solid ${plan.color}40`,
+                    }}>
+                    {plan.name === 'Free' ? 'Start Free' : plan.name === 'Pro' ? 'Go Pro' : 'Get API Key'}
                   </button>
                 </div>
               ))}
@@ -363,6 +408,22 @@ export default function ReconPage() {
           </div>
         </div>
       )}
+
+      {/* FOOTER */}
+      <footer className="px-6 py-12" style={{ borderTop: '1px solid #1e1e24' }}>
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
+              <path d="M14 2L25 8V20L14 26L3 20V8L14 2Z" stroke="#06b6d4" strokeWidth="1.5" fill="rgba(6,182,212,0.1)"/>
+              <path d="M9 14L12 17L19 10" stroke="#06b6d4" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            <span className="font-display font-bold text-sm" style={{ color: '#f4f4f5' }}>
+              Sec<span style={{ color: '#06b6d4' }}>Lab</span><span style={{ color: '#f59e0b' }}>NG</span>
+            </span>
+          </div>
+          <p className="font-mono text-xs" style={{ color: '#3f3f46' }}>© 2026 SecLab Nigeria · 5 free scans/day</p>
+        </div>
+      </footer>
     </div>
   );
 }
