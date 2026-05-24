@@ -343,16 +343,52 @@ export default function CoursesPage() {
                   const progress = isEnrolled ? getProgress(course.id) : 0;
                   const totalLessons = course.modules.reduce((a, m) => a + m.lessons.length, 0);
 
+                  const circumference = 2 * Math.PI * 20; // r=20
+                  const offset = circumference * (1 - progress / 100);
+                  const isComplete = progress === 100;
+
                   return (
                     <div key={course.id}
-                      className="rounded-xl p-5 cursor-pointer transition-all"
+                      className="rounded-xl p-5 cursor-pointer transition-all relative overflow-visible"
                       style={{
                         background: isActive ? '#16161c' : '#111116',
                         border: `1px solid ${isActive ? '#f59e0b' : '#1e1e24'}`,
                       }}>
 
+                      {/* Progress ring — top-right corner */}
+                      {isEnrolled && (
+                        <div className="absolute top-3 right-3">
+                          <svg width="48" height="48" viewBox="0 0 48 48">
+                            {/* Dark track */}
+                            <circle cx="24" cy="24" r="20" fill="none" stroke="#1e1e24" strokeWidth="4"/>
+                            {/* Progress arc */}
+                            <circle cx="24" cy="24" r="20" fill="none"
+                              stroke={isComplete ? '#22c55e' : '#f59e0b'}
+                              strokeWidth="4"
+                              strokeLinecap="round"
+                              strokeDasharray={circumference}
+                              strokeDashoffset={offset}
+                              transform="rotate(-90 24 24)"
+                              style={{ transition: 'stroke-dashoffset 0.5s ease, stroke 0.3s ease' }}
+                            />
+                            {/* Center text or checkmark */}
+                            {isComplete ? (
+                              <g transform="translate(24 24)">
+                                <circle cx="0" cy="0" r="9" fill="rgba(34,197,94,0.15)"/>
+                                <path d="M-4 0L-1 3L5 -3" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                              </g>
+                            ) : (
+                              <text x="24" y="24" textAnchor="middle" dominantBaseline="central"
+                                fontFamily="monospace" fontSize="10" fontWeight="bold" fill="#f4f4f5">
+                                {progress}%
+                              </text>
+                            )}
+                          </svg>
+                        </div>
+                      )}
+
                       {/* Course header */}
-                      <div className="flex items-start gap-4 mb-4">
+                      <div className="flex items-start gap-4 mb-4 pr-12">
                         <span className="text-3xl">{course.image}</span>
                         <div className="flex-1 min-w-0">
                           <h2 className="font-display font-semibold text-sm leading-tight"
@@ -382,18 +418,7 @@ export default function CoursesPage() {
                         ))}
                       </div>
 
-                      {/* Progress bar (if enrolled) */}
-                      {isEnrolled && (
-                        <div className="mb-4">
-                          <div className="flex items-center justify-between mb-1.5">
-                            <span className="font-mono text-[10px]" style={{ color: '#f59e0b' }}>Progress</span>
-                            <span className="font-mono text-[10px]" style={{ color: '#f59e0b' }}>{progress}%</span>
-                          </div>
-                          <div className="h-1.5 rounded-full overflow-hidden" style={{ background: '#1e1e24' }}>
-                            <div className="h-full rounded-full transition-all" style={{ width: `${progress}%`, background: '#f59e0b' }} />
-                          </div>
-                        </div>
-                      )}
+                      {/* Progress ring is in the top-right corner — no additional progress bar */}
 
                       {/* CTA — single unified button */}
                       <button
