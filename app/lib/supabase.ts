@@ -138,6 +138,34 @@ export async function upsertProfile(userId: string, username: string) {
   if (upsertErr && upsertErr.code !== '23505') throw upsertErr;
 }
 
+// ─── Hints Helpers ────────────────────────────────────────────
+
+export async function getHints(challengeId: number): Promise<{id: number; hint_text: string; hint_order: number; unlock_cost: number}[]> {
+  const { data, error } = await supabase
+    .from('ctf_hints')
+    .select('id, hint_text, hint_order, unlock_cost')
+    .eq('challenge_id', challengeId)
+    .order('hint_order', { ascending: true });
+  if (error) return [];
+  return data || [];
+}
+
+export async function unlockHint(userId: string, hintId: number): Promise<void> {
+  await (supabase.from('user_hints') as any).upsert(
+    { user_id: userId, hint_id: hintId, unlocked_at: new Date().toISOString() },
+    { onConflict: 'user_id,hint_id' }
+  );
+}
+
+export async function getUnlockedHints(userId: string): Promise<number[]> {
+  const { data, error } = await supabase
+    .from('user_hints')
+    .select('hint_id')
+    .eq('user_id', userId);
+  if (error) return [];
+  return (data || []).map((d: any) => d.hint_id);
+}
+
 // ─── Courses Helpers ────────────────────────────────────────────
 
 export async function getEnrolledCourses(userId: string): Promise<number[]> {

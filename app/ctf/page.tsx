@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { supabase, fetchChallenges, fetchLeaderboard, submitFlag, getSolveCount, getUserSolvedChallenges, upsertProfile } from '@/app/lib/supabase';
+import { supabase, fetchChallenges, fetchLeaderboard, submitFlag, getSolveCount, getUserSolvedChallenges, upsertProfile, getHints, unlockHint, getUnlockedHints } from '@/app/lib/supabase';
 
 const DIFFICULTY = {
   Easy:   { color: '#22c55e', bg: 'rgba(34,197,94,0.1)',   border: 'rgba(34,197,94,0.25)' },
@@ -37,7 +37,8 @@ export default function CTFPage() {
   const [selected, setSelected] = useState<number | null>(null);
   const [answer, setAnswer] = useState('');
   const [feedback, setFeedback] = useState<{ok: boolean; msg: string} | null>(null);
-  const [showHint, setShowHint] = useState<number | null>(null);
+  const [hints, setHints] = useState<{id: number; hint_text: string; hint_order: number; unlock_cost: number}[]>([]);
+  const [unlockedHints, setUnlockedHints] = useState<number[]>([]);
   const [filter, setFilter] = useState('All');
   const [tab, setTab] = useState<'challenges' | 'leaderboard'>('challenges');
   const [filterCat, setFilterCat] = useState('All');
@@ -109,6 +110,22 @@ export default function CTFPage() {
       setTimeout(() => setFeedback(null), 4000);
     }
   }, [answer, userId, userPoints]);
+
+  async function loadHintsForChallenge(challengeId: number) {
+    const [h, unlocked] = await Promise.all([
+      getHints(challengeId),
+      getUnlockedHints(userId),
+    ]);
+    setHints(h);
+    setUnlockedHints(unlocked);
+  }
+
+  async function handleUnlockHint(hintId: number, cost: number) {
+    if (userPoints < cost) return;
+    await unlockHint(userId, hintId);
+    setUnlockedHints(prev => [...prev, hintId]);
+    setUserPoints(prev => prev - cost);
+  }
 
   const filtered = filterCat === 'All' ? challenges : challenges.filter(c => c.category === filterCat);
 
@@ -246,19 +263,21 @@ export default function CTFPage() {
                     const isSolved = solved.includes(ch.id);
                     return (
                       <div key={ch.id}
-                        className="card rounded-xl p-6 relative overflow-hidden cursor-pointer card-tap"
+                        className={`card rounded-xl p-6 relative overflow-hidden cursor-pointer card-tap transition-all duration-200 hover:-translate-y-1 card-shimmer card-glow-${ch.category.toLowerCase()}`}
                         onClick={() => {
                           setSelected(ch.id);
                           setAnswer('');
-                          setShowHint(null);
+                          setHints([]);
+                          setUnlockedHints([]);
                           setFeedback(null);
                           setTappedId(ch.id);
+                          loadHintsForChallenge(ch.id);
                           setTimeout(() => setTappedId(null), 150);
                         }}
                         style={{
                           background: '#111116',
                           border: `1px solid ${isSolved ? 'rgba(34,197,94,0.3)' : '#1e1e24'}`,
-                          transform: tappedId === ch.id ? 'scale(0.97)' : 'scale(1)',
+                          transform: tappedId === ch.id ? 'scale(0.97)' : undefined,
                           transition: 'transform 0.1s ease',
                         }}>
                         {isSolved && (
@@ -294,7 +313,7 @@ export default function CTFPage() {
                             {solveCounts[ch.id] || 0} solves
                           </span>
                           <button
-                            onClick={() => { setSelected(ch.id); setAnswer(''); setShowHint(null); setFeedback(null); }}
+                            onClick={() => { setSelected(ch.id); setAnswer(''); setHints([]); setUnlockedHints([]); setFeedback(null); loadHintsForChallenge(ch.id); }}
                             className="font-mono text-xs transition-colors"
                             style={{ color: isSolved ? '#22c55e' : '#06b6d4' }}>
                             {isSolved ? 'Solved ✓' : 'Solve →'}

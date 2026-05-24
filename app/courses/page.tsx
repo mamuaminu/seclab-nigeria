@@ -34,6 +34,7 @@ export default function CoursesPage() {
   const [activeCourse, setActiveCourse] = useState<number | null>(null);
   const [activeLesson, setActiveLesson] = useState<any | null>(null);
   const [userId, setUserId] = useState('ssr');
+  const [confetti, setConfetti] = useState(false);
   const [toast, setToast] = useState<{ visible: boolean; message: string; courseTitle: string }>({
     visible: false,
     message: '',
@@ -102,13 +103,33 @@ export default function CoursesPage() {
     const next = !current;
     try {
       await setLessonComplete(userId, courseId, lessonKey, next);
-      setLessonProgress(prev => ({
-        ...prev,
-        [String(courseId)]: {
-          ...(prev[String(courseId)] || {}),
-          [lessonKey]: next,
-        },
-      }));
+      setLessonProgress(prev => {
+        const updated = {
+          ...prev,
+          [String(courseId)]: {
+            ...(prev[String(courseId)] || {}),
+            [lessonKey]: next,
+          },
+        };
+        // Check if course is now 100% complete
+        const course = COURSES.find(c => c.id === courseId);
+        if (course && next) {
+          const allLessons = course.modules.flatMap(m => m.lessons);
+          const completedCount = allLessons.filter(l => updated[String(courseId)]?.[l.key]).length;
+          if (completedCount === allLessons.length) {
+            setConfetti(true);
+            setTimeout(() => setConfetti(false), 3000);
+            const courseTitle = course?.title || '';
+            setToast({
+              visible: true,
+              message: '🎉 Course Complete!',
+              courseTitle,
+            });
+            setTimeout(() => setToast(prev => ({ ...prev, visible: false })), 5000);
+          }
+        }
+        return updated;
+      });
     } catch (e) {
       console.error('Failed to toggle lesson:', e);
     }
@@ -683,7 +704,7 @@ export default function CoursesPage() {
           style={{
             background: '#111116',
             border: '1px solid #1e1e24',
-            borderLeft: '4px solid #f59e0b',
+            borderLeft: '4px solid #22c55e',
             minWidth: '280px',
             animation: 'toast-in 0.3s ease-out forwards',
           }}
@@ -691,14 +712,38 @@ export default function CoursesPage() {
         >
           <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
             style={{ background: 'rgba(34,197,94,0.12)' }}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M3 8L6.5 11.5L13 5" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            <span className="text-base">🏆</span>
           </div>
           <div>
-            <p className="font-mono text-xs" style={{ color: '#f4f4f5' }}>{toast.message} <strong>{toast.courseTitle}!</strong></p>
-            <p className="font-mono text-[10px] mt-0.5" style={{ color: '#06b6d4' }}>Start learning →</p>
+            <p className="font-mono text-xs" style={{ color: '#f4f4f5' }}>{toast.message}</p>
+            <p className="font-mono text-[10px] mt-0.5" style={{ color: '#71717a' }}>{toast.courseTitle}</p>
           </div>
+        </div>
+      )}
+
+      {/* Confetti burst */}
+      {confetti && (
+        <div className="fixed inset-0 pointer-events-none z-[9999]">
+          {Array.from({ length: 50 }).map((_, i) => {
+            const colors = ['#06b6d4', '#f59e0b', '#22c55e', '#a1a1aa', '#f4f4f5', '#ef4444', '#8b5cf6'];
+            const color = colors[i % colors.length];
+            const left = Math.random() * 100;
+            const delay = Math.random() * 0.6;
+            const size = 6 + Math.random() * 8;
+            return (
+              <div
+                key={i}
+                className="confetti-piece"
+                style={{
+                  left: `${left}%`,
+                  width: size,
+                  height: size,
+                  background: color,
+                  animationDelay: `${delay}s`,
+                }}
+              />
+            );
+          })}
         </div>
       )}
     </div>
