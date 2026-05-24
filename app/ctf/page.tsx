@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase, fetchChallenges, fetchLeaderboard, submitFlag, getSolveCount, getUserSolvedChallenges, upsertProfile, getHints, unlockHint, getUnlockedHints } from '@/app/lib/supabase';
+import StreakCounter, { addXP } from '@/app/components/StreakCounter';
 
 const DIFFICULTY = {
   Easy:   { color: '#22c55e', bg: 'rgba(34,197,94,0.1)',   border: 'rgba(34,197,94,0.25)' },
@@ -48,6 +49,7 @@ export default function CTFPage() {
   const [tempName, setTempName] = useState('');
   const [userId, setUserId] = useState('ssr');
   const [tappedId, setTappedId] = useState<number | null>(null);
+  const [dailyChallenge, setDailyChallenge] = useState<any>(null);
   const categories = ['All', 'Web', 'Crypto', 'Network', 'Forensics'];
 
   useEffect(() => {
@@ -67,6 +69,12 @@ export default function CTFPage() {
       ]);
       setChallenges(chData || []);
       setSolved(solvedIds);
+
+      // Set daily challenge (seeded by today's date)
+      const today = new Date().toISOString().slice(0, 10);
+      const seed = today.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+      const daily = (chData || [])[seed % (chData || []).length] || null;
+      setDailyChallenge(daily);
 
       // Get solve counts per challenge
       const counts: Record<number, number> = {};
@@ -98,6 +106,7 @@ export default function CTFPage() {
         setSolveCounts(prev => ({ ...prev, [challengeId]: (prev[challengeId] || 0) + 1 }));
         setUserPoints(result.newPoints > 0 ? userPoints + result.newPoints : userPoints);
         setFeedback({ ok: true, msg: result.message });
+        addXP(challenge.points);
         const lb = await fetchLeaderboard();
         setLeaderboard(lb || []);
         setSelected(null);
@@ -204,6 +213,7 @@ export default function CTFPage() {
                   <span style={{ color: '#06b6d4' }}>{userPoints.toLocaleString()}</span> pts ·{' '}
                   <span style={{ color: '#f59e0b' }}>{solved.length}</span> solves
                 </div>
+                <StreakCounter />
               </div>
             </div>
           </div>
@@ -256,6 +266,31 @@ export default function CTFPage() {
                   ))}
                 </div>
 
+                {/* Daily Challenge Banner */}
+                {dailyChallenge && (
+                  <div className="mb-8 rounded-xl p-5 relative overflow-hidden"
+                    style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.25)', boxShadow: '0 0 30px rgba(245,158,11,0.12)' }}>
+                    <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(245,158,11,0.12) 0%, transparent 70%)' }} />
+                    <div className="relative z-10">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="font-mono text-[10px] uppercase tracking-widest" style={{ color: '#f59e0b' }}>⚡ Daily Challenge</span>
+                        <span className="font-mono text-[10px] px-2 py-0.5 rounded" style={{ background: 'rgba(245,158,11,0.15)', color: '#f59e0b' }}>{dailyChallenge.points} pts</span>
+                      </div>
+                      <h3 className="font-display font-bold text-lg mb-2" style={{ color: '#f4f4f5' }}>{dailyChallenge.title}</h3>
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="font-mono text-xs px-2 py-1 rounded" style={{ background: 'rgba(6,182,212,0.1)', color: '#06b6d4', border: '1px solid rgba(6,182,212,0.2)' }}>{dailyChallenge.category}</span>
+                        <span className="font-mono text-[10px] px-2 py-1 rounded" style={{ background: DIFFICULTY[dailyChallenge.difficulty as keyof typeof DIFFICULTY]?.bg, color: DIFFICULTY[dailyChallenge.difficulty as keyof typeof DIFFICULTY]?.color }}>{dailyChallenge.difficulty}</span>
+                      </div>
+                      <button
+                        onClick={() => { setSelected(dailyChallenge.id); setAnswer(''); setHints([]); setUnlockedHints([]); setFeedback(null); loadHintsForChallenge(dailyChallenge.id); }}
+                        className="font-mono text-xs py-2 px-4 rounded-md transition-all"
+                        style={{ background: 'rgba(245,158,11,0.15)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.3)' }}>
+                        Solve Now →
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {/* Grid */}
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
                   {filtered.map(ch => {
@@ -290,7 +325,7 @@ export default function CTFPage() {
                         <div className="flex items-center gap-2 mb-4">
                           <span className="font-mono text-[10px] px-2 py-0.5 rounded"
                             style={{ background: d.bg, color: d.color, border: `1px solid ${d.border}` }}>
-                            {ch.difficulty}
+                            {ch.difficulty === 'Easy' ? '🟢 ' : ch.difficulty === 'Medium' ? '🟡 ' : '🔴 '}{ch.difficulty}
                           </span>
                           <span className="font-mono text-[10px]" style={{ color: '#3f3f46' }}>{ch.category}</span>
                           <span className="font-mono text-[10px] ml-auto" style={{ color: '#f59e0b' }}>{ch.points} pts</span>

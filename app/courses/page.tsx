@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase, getEnrolledCourses, enrollCourse, unenrollCourse, getCourseProgress, setLessonComplete } from '@/app/lib/supabase';
+import { addXP } from '@/app/components/StreakCounter';
 import { COURSES } from '@/app/lib/courseData';
 
 function getUserId() {
@@ -14,7 +15,49 @@ function getUserId() {
   return id;
 }
 
-function parseLessons(courseId: number): { module: string; lesson: any }[] {
+function getUsername() {
+  if (typeof window === 'undefined') return 'Anonymous';
+  return localStorage.getItem('seclab_username') || 'Anonymous';
+}
+
+function certificateHTML(courseTitle: string, completedAt: string): string {
+  const userName = getUsername();
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+<title>SecLab Nigeria — Certificate of Completion</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #09090b; color: #f4f4f5; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px; }
+  .cert { width: 800px; max-width: 100%; background: #111116; border: 2px solid #1e1e24; border-radius: 16px; padding: 60px; text-align: center; position: relative; overflow: hidden; }
+  .cert::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(6,182,212,0.08) 0%, transparent 70%); pointer-events: none; }
+  .logo { font-size: 24px; font-weight: 700; margin-bottom: 40px; }
+  .cert .accent { color: #06b6d4; }
+  .cert .amber { color: #f59e0b; }
+  .title { font-size: 12px; letter-spacing: 4px; color: #52525b; text-transform: uppercase; margin-bottom: 20px; }
+  .course { font-size: 28px; font-weight: 700; color: #f4f4f5; margin-bottom: 30px; line-height: 1.3; }
+  .user { font-size: 20px; color: #06b6d4; margin-bottom: 30px; }
+  .meta { font-size: 13px; color: #52525b; margin-bottom: 50px; }
+  .footer { font-size: 11px; color: #3f3f46; border-top: 1px solid #1e1e24; padding-top: 20px; }
+  .badge { display: inline-block; background: rgba(245,158,11,0.12); color: #f59e0b; border: 1px solid rgba(245,158,11,0.25); padding: 4px 12px; border-radius: 20px; font-size: 11px; margin-bottom: 20px; }
+  @media print { body { background: #09090b; } .cert { border: 2px solid #06b6d4; } }
+</style>
+</head>
+<body>
+<div class="cert">
+  <div class="logo"><span class="accent">Sec</span><span class="accent">Lab</span><span class="amber">NG</span></div>
+  <div class="badge">🏆 Certificate of Completion</div>
+  <div class="title">This certifies that</div>
+  <div class="user">${userName}</div>
+  <div class="title">has successfully completed</div>
+  <div class="course">${courseTitle}</div>
+  <div class="meta">Completed on ${completedAt} · Powered by SecLab Nigeria</div>
+  <div class="footer">SecLab Nigeria · seclab.ng · This certificate is verifiable at seclab.ng/courses</div>
+</div>
+</body>
+</html>`;
+}
   const course = COURSES.find(c => c.id === courseId);
   if (!course) return [];
   const result: { module: string; lesson: any }[] = [];
@@ -35,6 +78,7 @@ export default function CoursesPage() {
   const [activeLesson, setActiveLesson] = useState<any | null>(null);
   const [userId, setUserId] = useState('ssr');
   const [confetti, setConfetti] = useState(false);
+  const [certData, setCertData] = useState<{ courseTitle: string; completedAt: string } | null>(null);
   const [toast, setToast] = useState<{ visible: boolean; message: string; courseTitle: string }>({
     visible: false,
     message: '',
@@ -71,9 +115,10 @@ export default function CoursesPage() {
       setLessonProgress(prev => ({ ...prev, [String(courseId)]: {} }));
       setToast({
         visible: true,
-        message: 'Enrolled in',
+        message: 'Enrolled! +10 XP',
         courseTitle: course?.title || '',
       });
+      addXP(10);
       setTimeout(() => setToast(prev => ({ ...prev, visible: false })), 4000);
     } catch (e) {
       console.error('Failed to enroll:', e);
@@ -114,9 +159,11 @@ export default function CoursesPage() {
         // Check if course is now 100% complete
         const course = COURSES.find(c => c.id === courseId);
         if (course && next) {
+          addXP(5);
           const allLessons = course.modules.flatMap(m => m.lessons);
           const completedCount = allLessons.filter(l => updated[String(courseId)]?.[l.key]).length;
           if (completedCount === allLessons.length) {
+            setCertData({ courseTitle: course?.title || '', completedAt: new Date().toLocaleDateString() });
             setConfetti(true);
             setTimeout(() => setConfetti(false), 3000);
             const courseTitle = course?.title || '';
@@ -125,7 +172,7 @@ export default function CoursesPage() {
               message: '🎉 Course Complete!',
               courseTitle,
             });
-            setTimeout(() => setToast(prev => ({ ...prev, visible: false })), 5000);
+            setTimeout(() => { setToast(prev => ({ ...prev, visible: false })); setCertData(null); }, 6000);
           }
         }
         return updated;
@@ -717,6 +764,21 @@ export default function CoursesPage() {
           <div>
             <p className="font-mono text-xs" style={{ color: '#f4f4f5' }}>{toast.message}</p>
             <p className="font-mono text-[10px] mt-0.5" style={{ color: '#71717a' }}>{toast.courseTitle}</p>
+            {certData && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const printWindow = window.open('', '_blank');
+                  if (!printWindow) return;
+                  printWindow.document.write(certificateHTML(certData.courseTitle, certData.completedAt));
+                  printWindow.document.close();
+                  printWindow.print();
+                }}
+                className="mt-2 font-mono text-[10px] py-1 px-3 rounded-lg transition-all"
+                style={{ background: 'rgba(245,158,11,0.15)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.25)' }}>
+                🏆 Download Certificate →
+              </button>
+            )}
           </div>
         </div>
       )}
