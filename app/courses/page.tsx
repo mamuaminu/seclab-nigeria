@@ -225,23 +225,7 @@ export default function CoursesPage() {
       {/* Mobile lesson panel — full-screen overlay when a course is open */}
       {activeCourse && (
         <div className="md:hidden fixed inset-0 z-40 flex flex-col" style={{ background: '#09090b', height: '100dvh' }}>
-          {/* Sticky back header */}
-          <div className="sticky top-0 z-10 flex items-center gap-3 px-4"
-            style={{ background: '#16161c', borderBottom: '1px solid #1e1e24', paddingTop: '12px', paddingBottom: '12px', paddingLeft: '16px', paddingRight: '16px' }}>
-            <button
-              onClick={() => { setActiveCourse(null); setActiveLesson(null); }}
-              className="flex items-center gap-1.5 font-mono text-xs transition-colors"
-              style={{ color: '#f59e0b' }}>
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
-              Back
-            </button>
-            <span className="font-mono text-xs" style={{ color: '#52525b' }}>|</span>
-            <span className="font-mono text-xs truncate flex-1" style={{ color: '#a1a1aa' }}>
-              {COURSES.find(c => c.id === activeCourse)?.title}
-            </span>
-          </div>
-
-          {/* Scrollable lesson/module content — this is the ONLY scrollable child */}
+          {/* Scrollable lesson/module content */}
           <div className="flex-1 overflow-y-auto px-4 py-6" style={{ paddingBottom: '96px', WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
             {(() => {
               const course = COURSES.find(c => c.id === activeCourse);
