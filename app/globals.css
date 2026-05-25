@@ -76,6 +76,7 @@ body {
   background: var(--surface);
   border: 1px solid var(--border);
   transition: border-color 0.2s, box-shadow 0.2s;
+  position: relative;
 }
 .card:hover {
   border-color: var(--brand);
