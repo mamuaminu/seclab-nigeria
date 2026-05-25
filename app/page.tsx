@@ -1,294 +1,222 @@
 'use client';
 
 import { useState } from 'react';
-import { useEffect, useRef } from 'react';
 
 const PRODUCTS = [
   {
     id: 'ctf',
     name: 'CTF Platform',
-    icon: '⬡',
-    iconColor: '#06b6d4',
     tagline: 'Compete. Learn. Level up.',
     description: 'Hands-on CTF challenges across Web, Crypto, Network, and Forensics. Practice against real vulnerability patterns used in security competitions worldwide.',
     cta: 'Start Solving',
     href: '/ctf',
-    color: '#06b6d4',
-    colorDim: 'rgba(6,182,212,0.1)',
+    color: '#0891b2',
+    colorDim: 'rgba(8,145,178,0.08)',
+    colorLight: '#e0f7fa',
     stats: ['6 Live Challenges', 'Weekly competitions', 'Community writeups'],
+    mockLabel: 'SQL Injection Lab',
+    mockLabel2: 'XSS Challenge',
+    mockLabel3: 'Crypto Cipher',
   },
   {
     id: 'courses',
     name: 'Security Training',
-    icon: '⬡',
-    iconColor: '#f59e0b',
     tagline: 'Learn by breaking things.',
     description: 'Free structured courses that take you from beginner to competent. Real labs, practical methodology, no filler. Built by a working pentester.',
     cta: 'Browse Courses',
     href: '/courses',
-    color: '#f59e0b',
-    colorDim: 'rgba(245,158,11,0.1)',
-    stats: ['4 Free Courses', 'Beginner to Intermediate', 'Hands-on labs'],
+    color: '#d97706',
+    colorDim: 'rgba(217,119,6,0.08)',
+    colorLight: '#fef3c7',
+    stats: ['7 Free Courses', 'Beginner to Advanced', 'Hands-on labs'],
+    mockLabel: 'Web Penetration Testing',
+    mockLabel2: 'Blue Team SOC Analyst',
+    mockLabel3: 'Bug Bounty Hunter',
   },
   {
     id: 'recon',
     name: 'Vulnerability Recon',
-    icon: '⬡',
-    iconColor: '#22c55e',
     tagline: 'Know your attack surface.',
     description: 'Automated recon scanner. Subdomain enumeration, port scanning, CVE lookup, and technology fingerprinting — with actionable PDF reports.',
     cta: 'Run First Scan',
     href: '/recon',
-    color: '#22c55e',
-    colorDim: 'rgba(34,197,94,0.1)',
+    color: '#059669',
+    colorDim: 'rgba(5,150,105,0.08)',
+    colorLight: '#d1fae5',
     stats: ['5 free scans/day', 'CVE database', 'PDF reports'],
+    mockLabel: 'Subdomain Enum',
+    mockLabel2: 'Port Scanner',
+    mockLabel3: 'CVE Lookup',
   },
 ];
-
-function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    let start = 0;
-    const duration = 1500;
-    const step = 16;
-    const increment = target / (duration / step);
-    const timer = setInterval(() => {
-      start = Math.min(start + increment, target);
-      el.textContent = Math.floor(start).toLocaleString() + suffix;
-      if (start >= target) clearInterval(timer);
-    }, step);
-    return () => clearInterval(timer);
-  }, [target, suffix]);
-  return <span ref={ref}>0{suffix}</span>;
-}
 
 export default function Home() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="min-h-screen" style={{ background: '#09090b' }}>
+    <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
 
       {/* ── NAV ── */}
-      <nav className="fixed top-0 left-0 right-0 z-50" style={{ background: 'rgba(9,9,11,0.9)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #1e1e24' }}>
+      <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b" style={{ borderColor: 'var(--border)' }}>
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <a href="/" className="flex items-center gap-3 group">
-            <div className="relative">
-              <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M14 2L25 8V20L14 26L3 20V8L14 2Z" stroke="#06b6d4" strokeWidth="1.5" fill="rgba(6,182,212,0.1)"/>
-                <path d="M9 14L12 17L19 10" stroke="#06b6d4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#0891b2' }}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M8 1L15 4.5V11.5L8 15L1 11.5V4.5L8 1Z" stroke="white" strokeWidth="1.5" fill="none"/>
+                <path d="M5.5 8L7 9.5L10.5 6" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
             </div>
-            <span className="font-display font-bold text-sm tracking-wide" style={{ color: '#f4f4f5' }}>
-              Sec<span style={{ color: '#06b6d4' }}>Lab</span><span style={{ color: '#f59e0b' }}>NG</span>
+            <span className="font-display font-bold text-sm tracking-tight" style={{ color: 'var(--text)' }}>
+              Sec<span style={{ color: '#0891b2' }}>Lab</span><span style={{ color: '#d97706' }}>.ng</span>
             </span>
           </a>
 
-          {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-8">
             {[
               ['/ctf', 'CTF'],
               ['/courses', 'Courses'],
               ['/recon', 'Recon'],
             ].map(([href, label]) => (
-              <a key={href} href={href} className="nav-link" style={{ color: '#a1a1aa' }}>
+              <a key={href} href={href} className="nav-link" style={{ color: 'var(--text-2)' }}>
                 {label}
               </a>
             ))}
             <a href="https://github.com/mamuaminu" target="_blank" rel="noopener noreferrer"
-              className="font-mono text-xs px-4 py-2 rounded-md transition-all"
-              style={{ background: 'rgba(6,182,212,0.1)', color: '#06b6d4', border: '1px solid rgba(6,182,212,0.2)' }}>
+              className="font-mono text-xs px-4 py-2 rounded-lg transition-all"
+              style={{ background: 'var(--bg-3)', color: 'var(--text-2)', border: '1px solid var(--border)' }}>
               GitHub
             </a>
           </div>
 
-          {/* Mobile hamburger */}
           <button
-            className="md:hidden flex flex-col justify-center items-center w-10 h-10 rounded-lg transition-colors"
-            style={{ background: '#16161c', color: '#a1a1aa' }}
-            onClick={() => setMobileOpen(true)}
-            onMouseEnter={e => (e.currentTarget.style.background = '#1e1e24')}
-            onMouseLeave={e => (e.currentTarget.style.background = '#16161c')}
-          >
+            className="md:hidden w-10 h-10 rounded-lg flex items-center justify-center"
+            style={{ background: 'var(--bg-3)' }}
+            onClick={() => setMobileOpen(true)}>
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <path d="M2 4H16M2 9H16M2 14H16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M2 4H16M2 9H16M2 14H16" stroke="var(--text-2)" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
           </button>
         </div>
       </nav>
 
-      {/* Mobile menu overlay */}
+      {/* Mobile menu */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'rgba(9,9,11,0.97)', backdropFilter: 'blur(16px)' }}
+        <div className="fixed inset-0 z-50 flex flex-col" style={{ background: 'var(--bg)' }}
           onClick={(e) => e.target === e.currentTarget && setMobileOpen(false)}>
-          <div className="flex items-center justify-between px-6 h-16" style={{ borderBottom: '1px solid #1e1e24' }}>
+          <div className="flex items-center justify-between px-6 h-16" style={{ borderBottom: '1px solid var(--border)' }}>
             <a href="/" className="flex items-center gap-3" onClick={() => setMobileOpen(false)}>
-              <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
-                <path d="M14 2L25 8V20L14 26L3 20V8L14 2Z" stroke="#06b6d4" strokeWidth="1.5" fill="rgba(6,182,212,0.1)"/>
-                <path d="M9 14L12 17L19 10" stroke="#06b6d4" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
-              <span className="font-display font-bold text-sm" style={{ color: '#f4f4f5' }}>
-                Sec<span style={{ color: '#06b6d4' }}>Lab</span><span style={{ color: '#f59e0b' }}>NG</span>
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#0891b2' }}>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M8 1L15 4.5V11.5L8 15L1 11.5V4.5L8 1Z" stroke="white" strokeWidth="1.5"/>
+                  <path d="M5.5 8L7 9.5L10.5 6" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+              </div>
+              <span className="font-display font-bold text-sm" style={{ color: 'var(--text)' }}>
+                Sec<span style={{ color: '#0891b2' }}>Lab</span><span style={{ color: '#d97706' }}>.ng</span>
               </span>
             </a>
-            <button
-              className="w-10 h-10 rounded-lg flex items-center justify-center transition-colors"
-              style={{ background: '#16161c', color: '#71717a' }}
-              onClick={() => setMobileOpen(false)}
-              onMouseEnter={e => (e.currentTarget.style.background = '#1e1e24')}
-              onMouseLeave={e => (e.currentTarget.style.background = '#16161c')}
-            >
+            <button className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'var(--bg-3)' }}
+              onClick={() => setMobileOpen(false)}>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M3 3L13 13M13 3L3 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                <path d="M3 3L13 13M13 3L3 13" stroke="var(--text-2)" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
             </button>
           </div>
           <div className="flex-1 flex flex-col items-center justify-center gap-8 px-6">
-            {[
-              ['/ctf', 'CTF'],
-              ['/courses', 'Courses'],
-              ['/recon', 'Recon'],
-            ].map(([href, label]) => (
-              <a key={href} href={href} onClick={() => setMobileOpen(false)}
-                className="font-display font-bold text-2xl transition-colors"
-                style={{ color: '#a1a1aa' }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#06b6d4')}
-                onMouseLeave={e => (e.currentTarget.style.color = '#a1a1aa')}
-              >
-                {label}
-              </a>
-            ))}
-            <a href="https://github.com/mamuaminu" target="_blank" rel="noopener noreferrer"
-              className="font-mono text-sm px-6 py-3 rounded-lg transition-all"
-              style={{ background: 'rgba(6,182,212,0.1)', color: '#06b6d4', border: '1px solid rgba(6,182,212,0.2)' }}
-              onClick={() => setMobileOpen(false)}
-            >
-              GitHub
-            </a>
+            {['/ctf', '/courses', '/recon'].map((href, i) => {
+              const labels = ['CTF', 'Courses', 'Recon'];
+              return (
+                <a key={href} href={href} onClick={() => setMobileOpen(false)}
+                  className="font-display font-bold text-2xl" style={{ color: 'var(--text-2)' }}>
+                  {labels[i]}
+                </a>
+              );
+            })}
           </div>
         </div>
       )}
 
       {/* ── HERO ── */}
-      <section className="relative pt-20 pb-12 px-4 md:pt-32 md:pb-24 md:px-6 text-center overflow-hidden" style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        {/* subtle grid bg */}
-        <div className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: 'linear-gradient(rgba(6,182,212,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(6,182,212,0.03) 1px, transparent 1px)',
-            backgroundSize: '48px 48px',
-          }} />
-        {/* top glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(6,182,212,0.08) 0%, transparent 70%)' }} />
-
-        <div className="relative z-10 max-w-4xl mx-auto">
-          {/* badge */}
-          <div className="inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full"
-            style={{ background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.15)' }}>
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full" style={{ background: '#06b6d4', opacity: 0.5 }} />
-              <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: '#06b6d4' }} />
-            </span>
-            <span className="font-mono text-xs tracking-wider uppercase" style={{ color: '#06b6d4' }}>
-              Nigeria&apos;s Cybersecurity Platform
-            </span>
-          </div>
-
-          {/* headline */}
-          <h1 className="font-display font-extrabold text-3xl md:text-5xl md:text-6xl lg:text-7xl leading-[1.05] tracking-tight mb-6"
-            style={{ color: '#f4f4f5' }}>
-            <span>Break things.</span>
-            <br />
-            <span style={{ color: '#06b6d4' }}>Learn fast.</span>
-            <br />
-            <span>Ship confidently.</span>
-          </h1>
-
-          {/* sub */}
-          <p className="text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed"
-            style={{ color: '#71717a' }}>
-            Three products for the security community. Practice on our CTF platform,
-            learn with free structured courses, and audit your infrastructure with our recon scanner.
+      <section className="relative pt-20 pb-16 px-6 text-center" style={{ background: 'var(--bg)' }}>
+        <div className="max-w-3xl mx-auto pt-16 pb-20">
+          {/* eyebrow */}
+          <p className="font-mono text-sm font-medium tracking-wide uppercase mb-6" style={{ color: '#0891b2' }}>
+            Free Cybersecurity Training — Built for Africa
           </p>
 
-          {/* CTA */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          {/* headline */}
+          <h1 className="font-display font-extrabold text-4xl md:text-5xl lg:text-6xl leading-[1.08] tracking-tight mb-6" style={{ color: 'var(--text)' }}>
+            The practical path to
+            <br />
+            <span style={{ color: '#0891b2' }}>cybersecurity competency.</span>
+          </h1>
+
+          {/* subheadline */}
+          <p className="text-lg md:text-xl max-w-xl mx-auto mb-10 leading-relaxed" style={{ color: 'var(--text-2)' }}>
+            CTF challenges, free structured courses, and a recon scanner — all in one platform.
+            No paid walls. No fluff. Built by a working pentester.
+          </p>
+
+          {/* CTAs */}
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
             <a href="/ctf" className="btn-primary">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1L15 4.5V11.5L8 15L1 11.5V4.5L8 1Z" stroke="currentColor" strokeWidth="1.5"/></svg>
-              Explore CTF Platform
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                <path d="M8 1L15 4.5V11.5L8 15L1 11.5V4.5L8 1Z" stroke="currentColor" strokeWidth="1.5"/>
+                <path d="M5.5 8L7 9.5L10.5 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+              Start Solving CTFs
             </a>
             <a href="/courses" className="btn-outline">Browse Free Courses</a>
           </div>
         </div>
-      </section>
 
-      {/* ── STATS STRIP ── */}
-      <section className="border-y" style={{ borderColor: '#1e1e24' }}>
-        <div className="max-w-6xl mx-auto px-6 py-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {[
-              ['6', 'Live Challenges', '#06b6d4'],
-              ['0', 'Courses (Free)', '#f59e0b'],
-              ['5', 'Scans/day free', '#22c55e'],
-              ['24/7', 'Platform uptime', '#a1a1aa'],
-            ].map(([val, label, color]) => (
-              <div key={label}>
-                <div className="font-display font-extrabold text-4xl mb-1" style={{ color }}>{val}</div>
-                <div className="font-mono text-xs uppercase tracking-widest" style={{ color: '#52525b' }}>{label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
+        {/* Thin rule */}
+        <div className="max-w-3xl mx-auto" style={{ borderTop: '1px solid var(--border)' }} />
       </section>
 
       {/* ── THREE PRODUCTS ── */}
-      <section className="py-24 px-6">
+      <section className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <span className="section-label">// WHAT WE BUILD</span>
-            <h2 className="font-display font-bold text-4xl md:text-5xl mt-3 mb-4" style={{ color: '#f4f4f5' }}>
-              Three products.
-              <br /><span style={{ color: '#06b6d4' }}>One ecosystem.</span>
+            <span className="section-label">// THE PLATFORM</span>
+            <h2 className="font-display font-bold text-3xl md:text-4xl mt-2" style={{ color: 'var(--text)' }}>
+              Three tools. One mission.
             </h2>
-            <p className="text-base max-w-lg mx-auto" style={{ color: '#71717a' }}>
-              Each product stands alone. Together they form a complete learning and testing platform for web application security.
+            <p className="text-base max-w-md mx-auto mt-3" style={{ color: 'var(--text-2)' }}>
+              Each product covers a different aspect of security learning. Use them together or start with whichever fits your goal.
             </p>
           </div>
 
-          <div className="space-y-20">
+          <div className="space-y-16">
             {PRODUCTS.map((product, i) => (
               <div key={product.id}
-                className={`grid lg:grid-cols-2 gap-12 items-center ${i % 2 === 1 ? 'lg:grid-flow-dense' : ''}`}
+                className={`grid lg:grid-cols-2 gap-10 items-center ${i % 2 === 1 ? 'lg:grid-flow-dense' : ''}`}
                 style={{ direction: i % 2 === 1 ? 'rtl' : 'ltr' }}>
+
                 {/* Text side */}
                 <div style={{ direction: 'ltr' }}>
-                  <div className="inline-flex items-center gap-3 mb-5">
-                    <div className="w-10 h-10 rounded-lg flex items-center justify-center"
-                      style={{ background: product.colorDim, border: `1px solid ${product.color}30` }}>
-                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M10 1L18 5.5V14.5L10 19L2 14.5V5.5L10 1Z" stroke={product.color} strokeWidth="1.5"/>
-                        <path d="M7 10L9 12L13 8" stroke={product.color} strokeWidth="1.5" strokeLinecap="round"/>
+                  <div className="inline-flex items-center gap-2 mb-5">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: product.colorLight }}>
+                      <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                        {product.id === 'ctf' && <path d="M10 1L18 5.5V14.5L10 19L2 14.5V5.5L10 1Z" stroke={product.color} strokeWidth="1.5"/>}
+                        {product.id === 'courses' && <path d="M3 14V4M8 14V8M13 14V4M1 14H17" stroke={product.color} strokeWidth="1.5" strokeLinecap="round"/>}
+                        {product.id === 'recon' && <><circle cx="9" cy="9" r="7" stroke={product.color} strokeWidth="1.5"/><path d="M9 5V9L12 12" stroke={product.color} strokeWidth="1.5" strokeLinecap="round"/></>}
                       </svg>
                     </div>
-                    <span className="badge" style={{
-                      background: product.colorDim,
-                      border: `1px solid ${product.color}30`,
-                      color: product.color,
-                    }}>
-                      {product.id === 'ctf' ? 'FREE' : product.id === 'courses' ? 'FREE COURSES' : 'FREE TIER'}
+                    <span className="font-mono text-xs font-medium uppercase tracking-wider" style={{ color: product.color }}>
+                      {product.id === 'ctf' ? 'Free Access' : product.id === 'courses' ? 'Free Forever' : 'Free Tier'}
                     </span>
                   </div>
 
-                  <h3 className="font-display font-bold text-3xl mb-2" style={{ color: '#f4f4f5' }}>
+                  <h3 className="font-display font-bold text-2xl mb-1" style={{ color: 'var(--text)' }}>
                     {product.name}
                   </h3>
                   <p className="font-mono text-sm mb-4" style={{ color: product.color }}>{product.tagline}</p>
-                  <p className="text-base leading-relaxed mb-6" style={{ color: '#71717a' }}>{product.description}</p>
+                  <p className="text-base leading-relaxed mb-6" style={{ color: 'var(--text-2)' }}>{product.description}</p>
 
                   <div className="space-y-2 mb-8">
                     {product.stats.map(s => (
-                      <div key={s} className="flex items-center gap-3 font-mono text-sm" style={{ color: '#52525b' }}>
+                      <div key={s} className="flex items-center gap-3 text-sm" style={{ color: 'var(--text-2)' }}>
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                           <path d="M2 7L5.5 10.5L12 4" stroke={product.color} strokeWidth="1.5" strokeLinecap="round"/>
                         </svg>
@@ -297,9 +225,13 @@ export default function Home() {
                     ))}
                   </div>
 
-                  <a href={product.href} className="btn-primary" style={{ background: product.color }}>
+                  <a href={product.href}
+                    className="inline-flex items-center gap-2 text-sm font-semibold transition-all"
+                    style={{ color: product.color }}
+                    onMouseEnter={e => (e.currentTarget.style.opacity = '0.75')}
+                    onMouseLeave={e => (e.currentTarget.style.opacity = '1')}>
                     {product.cta}
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
                       <path d="M3 7H11M8 4L11 7L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                     </svg>
                   </a>
@@ -307,34 +239,31 @@ export default function Home() {
 
                 {/* Visual side */}
                 <div style={{ direction: 'ltr' }}>
-                  <div className="rounded-2xl overflow-hidden p-8"
-                    style={{ background: '#111116', border: `1px solid #1e1e24`, minHeight: '280px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    {/* Product mock cards */}
-                    <div className="w-full max-w-sm">
-                      <div className="space-y-3">
-                        {[0, 1, 2].map(j => (
-                          <div key={j} className="flex items-center gap-4 p-4 rounded-xl transition-all cursor-pointer"
-                            style={{ background: '#16161c', border: '1px solid #1e1e24' }}
-                            onMouseEnter={e => (e.currentTarget.style.borderColor = `${product.color}30`)}
-                            onMouseLeave={e => (e.currentTarget.style.borderColor = '#1e1e24')}>
-                            <div className="w-10 h-10 rounded-lg flex items-center justify-center"
-                              style={{ background: product.colorDim }}>
-                              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                {product.id === 'ctf' && <path d="M9 1L17 5V13L9 17L1 13V5L9 1Z" stroke={product.color} strokeWidth="1.5"/>}
-                                {product.id === 'courses' && <path d="M3 14V4M8 14V8M13 14V4M1 14H17" stroke={product.color} strokeWidth="1.5" strokeLinecap="round"/>}
-                                {product.id === 'recon' && <><circle cx="9" cy="9" r="7" stroke={product.color} strokeWidth="1.5"/><path d="M9 5V9L12 12" stroke={product.color} strokeWidth="1.5" strokeLinecap="round"/></>}
-                              </svg>
-                            </div>
-                            <div className="flex-1">
-                              <div className="font-mono text-xs text-white">{product.id === 'ctf' ? ['SQL Injection Lab', 'XSS Challenge', 'Crypto Cipher'][j] : product.id === 'courses' ? ['Web Pentesting', 'Python Automation', 'CTF Fundamentals'][j] : ['Subdomain Enum', 'Port Scanner', 'CVE Lookup'][j]}</div>
-                              <div className="font-mono text-[10px]" style={{ color: product.color }}>{product.id === 'ctf' ? ['Web · Easy', 'Web · Medium', 'Crypto · Hard'][j] : product.id === 'courses' ? ['Free · 12hrs', 'Free · 8hrs', 'Free · 6hrs'][j] : ['Top 100 ports', 'All ports', 'CVE DB'][j]}</div>
-                            </div>
-                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                              <path d="M5 3L9 7L5 11" stroke="#3f3f46" strokeWidth="1.5" strokeLinecap="round"/>
+                  <div className="rounded-2xl overflow-hidden"
+                    style={{ background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)' }}>
+                    <div className="p-6 space-y-2">
+                      {[product.mockLabel, product.mockLabel2, product.mockLabel3].map((label, j) => (
+                        <div key={j} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'var(--bg-2)' }}>
+                          <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: product.colorLight }}>
+                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                              {product.id === 'ctf' && <path d="M8 1L15 4.5V11.5L8 15L1 11.5V4.5L8 1Z" stroke={product.color} strokeWidth="1.5"/>}
+                              {product.id === 'courses' && <path d="M3 12V4M7 12V6M11 12V4" stroke={product.color} strokeWidth="1.5" strokeLinecap="round"/>}
+                              {product.id === 'recon' && <><circle cx="8" cy="8" r="5" stroke={product.color} strokeWidth="1.5"/><path d="M8 5V8L10.5 10.5" stroke={product.color} strokeWidth="1.5" strokeLinecap="round"/></>}
                             </svg>
                           </div>
-                        ))}
-                      </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-medium truncate" style={{ color: 'var(--text)' }}>{label}</div>
+                            <div className="text-xs" style={{ color: 'var(--text-3)' }}>
+                              {product.id === 'ctf' ? ['Web · Easy', 'Web · Medium', 'Crypto · Hard'][j] :
+                               product.id === 'courses' ? ['20 modules', '20 modules', '20 modules'][j] :
+                               ['Top 100 ports', 'Full scan', 'CVE DB'][j]}
+                            </div>
+                          </div>
+                          <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                            <path d="M5 3L9 7L5 11" stroke="var(--border-2)" strokeWidth="1.5" strokeLinecap="round"/>
+                          </svg>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -344,143 +273,66 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── SOCIAL PROOF ── */}
-      <section className="py-20 px-6" style={{ background: '#111116', borderTop: '1px solid #1e1e24', borderBottom: '1px solid #1e1e24' }}>
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <span className="section-label">// PLATFORM OVERVIEW</span>
-            <h2 className="font-display font-bold text-3xl mt-3" style={{ color: '#f4f4f5' }}>
-              Everything you need to get started
-            </h2>
-          </div>
-          <div className="grid sm:grid-cols-3 gap-6">
+      {/* ── STATS STRIP ── */}
+      <section className="py-12 px-6" style={{ background: 'var(--bg-3)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+        <div className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
-              {
-                icon: (
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 2L20 7V17L12 22L4 17V7L12 2Z" stroke="#06b6d4" strokeWidth="1.5"/>
-                    <path d="M8 12L11 15L16 9" stroke="#06b6d4" strokeWidth="1.5" strokeLinecap="round"/>
-                  </svg>
-                ),
-                title: 'CTF Platform',
-                desc: '6 live challenges across Web, Crypto, Network. Free to start. Competitive leaderboard.',
-                href: '/ctf',
-                color: '#06b6d4',
-              },
-              {
-                icon: (
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M4 19V5M10 19V9M16 19V13M2 19H22" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round"/>
-                  </svg>
-                ),
-                title: 'Free Courses',
-                desc: '4 structured courses. No paid walls blocking fundamentals. Beginner to intermediate.',
-                href: '/courses',
-                color: '#f59e0b',
-              },
-              {
-                icon: (
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <circle cx="11" cy="11" r="8" stroke="#22c55e" strokeWidth="1.5"/>
-                    <path d="M16 16L20 20" stroke="#22c55e" strokeWidth="1.5" strokeLinecap="round"/>
-                    <path d="M8 11H8.01M11 8V8.01M11 14V14.01" stroke="#22c55e" strokeWidth="1.5" strokeLinecap="round"/>
-                  </svg>
-                ),
-                title: 'Recon Scanner',
-                desc: '5 free scans per day. Subdomains, ports, CVE lookup, tech detection, PDF export.',
-                href: '/recon',
-                color: '#22c55e',
-              },
-            ].map(card => (
-              <a key={card.title} href={card.href}
-                className="card p-6 rounded-xl group">
-                <div className="mb-4">{card.icon}</div>
-                <h3 className="font-display font-semibold text-base mb-2" style={{ color: '#f4f4f5' }}>{card.title}</h3>
-                <p className="text-sm leading-relaxed mb-4" style={{ color: '#71717a' }}>{card.desc}</p>
-                <span className="font-mono text-xs transition-colors" style={{ color: card.color }}>
-                  Explore →
-                </span>
-              </a>
+              ['6', 'Live Challenges'],
+              ['7', 'Free Courses'],
+              ['5', 'Scans per Day'],
+              ['100%', 'Free Access'],
+            ].map(([val, label]) => (
+              <div key={label}>
+                <div className="font-display font-extrabold text-3xl mb-1" style={{ color: 'var(--text)' }}>{val}</div>
+                <div className="font-mono text-xs uppercase tracking-widest" style={{ color: 'var(--text-3)' }}>{label}</div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="px-6 py-16">
+      <footer className="px-6 py-14" style={{ background: 'var(--bg-2)', borderTop: '1px solid var(--border)' }}>
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10 mb-12">
-            {/* Brand */}
-            <div className="sm:col-span-1">
-              <div className="flex items-center gap-3 mb-4">
-                <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                  <path d="M14 2L25 8V20L14 26L3 20V8L14 2Z" stroke="#06b6d4" strokeWidth="1.5" fill="rgba(6,182,212,0.1)"/>
-                  <path d="M9 14L12 17L19 10" stroke="#06b6d4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 mb-10">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#0891b2' }}>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M8 1L15 4.5V11.5L8 15L1 11.5V4.5L8 1Z" stroke="white" strokeWidth="1.5"/>
+                  <path d="M5.5 8L7 9.5L10.5 6" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
                 </svg>
-                <span className="font-display font-bold text-sm" style={{ color: '#f4f4f5' }}>
-                  Sec<span style={{ color: '#06b6d4' }}>Lab</span><span style={{ color: '#f59e0b' }}>NG</span>
-                </span>
               </div>
-              <p className="text-sm leading-relaxed" style={{ color: '#52525b' }}>
-                Nigerian cybersecurity platform. Free tools, free education, built byMuhammad Aminu Musa.
-              </p>
+              <span className="font-display font-bold text-sm" style={{ color: 'var(--text)' }}>
+                Sec<span style={{ color: '#0891b2' }}>Lab</span><span style={{ color: '#d97706' }}>.ng</span>
+              </span>
             </div>
 
-            {/* Products */}
-            <div>
-              <p className="font-mono text-xs uppercase tracking-widest mb-4" style={{ color: '#3f3f46' }}>Products</p>
-              <div className="space-y-3">
-                {[['CTF Platform', '/ctf'], ['Free Courses', '/courses'], ['Recon Scanner', '/recon']].map(([label, href]) => (
-                  <a key={label} href={href} className="block text-sm transition-colors" style={{ color: '#71717a' }}
-                    onMouseEnter={e => (e.currentTarget.style.color = '#f4f4f5')}
-                    onMouseLeave={e => (e.currentTarget.style.color = '#71717a')}>
-                    {label}
-                  </a>
-                ))}
-              </div>
-            </div>
-
-            {/* Resources */}
-            <div>
-              <p className="font-mono text-xs uppercase tracking-widest mb-4" style={{ color: '#3f3f46' }}>Resources</p>
-              <div className="space-y-3">
-                {[['GitHub', 'https://github.com/mamuaminu'], ['Contact', 'mailto:Mamuaminu31@gmail.com']].map(([label, href]) => (
-                  <a key={label} href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer"
-                    className="block text-sm transition-colors" style={{ color: '#71717a' }}
-                    onMouseEnter={e => (e.currentTarget.style.color = '#f4f4f5')}
-                    onMouseLeave={e => (e.currentTarget.style.color = '#71717a')}>
-                    {label}
-                  </a>
-                ))}
-              </div>
-            </div>
-
-            {/* Mission */}
-            <div>
-              <p className="font-mono text-xs uppercase tracking-widest mb-4" style={{ color: '#3f3f46' }}>Mission</p>
-              <p className="text-sm leading-relaxed" style={{ color: '#52525b' }}>
-                Making cybersecurity education accessible to every Nigerian and African developer who wants to learn.
-              </p>
+            <div className="flex flex-col sm:flex-row gap-6 sm:gap-8">
+              {[['CTF Platform', '/ctf'], ['Free Courses', '/courses'], ['Recon Scanner', '/recon']].map(([label, href]) => (
+                <a key={href} href={href} className="text-sm transition-colors" style={{ color: 'var(--text-2)' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = 'var(--text)')}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-2)')}>
+                  {label}
+                </a>
+              ))}
+              <a href="https://github.com/mamuaminu" target="_blank" rel="noopener noreferrer"
+                className="text-sm transition-colors" style={{ color: 'var(--text-2)' }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--text)')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-2)')}>
+                GitHub
+              </a>
             </div>
           </div>
 
-          <div className="divider mb-8" />
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="font-mono text-xs" style={{ color: '#3f3f46' }}>
+          <div className="divider mb-6" />
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="font-mono text-xs" style={{ color: 'var(--text-3)' }}>
               © 2026 SecLab Nigeria. Built in Nigeria.
             </p>
-            <div className="flex items-center gap-4">
-              <a href="https://github.com/mamuaminu" target="_blank" rel="noopener noreferrer" className="font-mono text-xs transition-colors" style={{ color: '#3f3f46' }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#06b6d4')}
-                onMouseLeave={e => (e.currentTarget.style.color = '#3f3f46')}>
-                GitHub
-              </a>
-              <a href="mailto:Mamuaminu31@gmail.com" className="font-mono text-xs transition-colors" style={{ color: '#3f3f46' }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#06b6d4')}
-                onMouseLeave={e => (e.currentTarget.style.color = '#3f3f46')}>
-                Contact
-              </a>
-            </div>
+            <p className="font-mono text-xs" style={{ color: 'var(--text-3)' }}>
+              Free forever. No paid walls.
+            </p>
           </div>
         </div>
       </footer>
