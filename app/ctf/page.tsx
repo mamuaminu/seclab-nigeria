@@ -52,18 +52,20 @@ export default function CTFPage() {
   const categories = ['All', 'Web', 'Crypto', 'Network', 'Forensics'];
 
   useEffect(() => {
-    setUserId(getUserId());
-    setTempName(getUsername());
-    loadData();
-    upsertProfile(getUserId(), getUsername()).catch(console.error);
+    const uid = getUserId();
+    const uname = getUsername();
+    setUserId(uid);
+    setTempName(uname);
+    upsertProfile(uid, uname).catch(console.error);
+    loadData(uid);
   }, []);
 
-  async function loadData() {
+  async function loadData(uid: string) {
     try {
       setLoading(true);
       const [chData, solvedIds, lbData] = await Promise.all([
         fetchChallenges(),
-        getUserSolvedChallenges(userId),
+        getUserSolvedChallenges(uid),
         fetchLeaderboard(),
       ]);
       setChallenges(chData || []);
@@ -98,7 +100,7 @@ export default function CTFPage() {
       if (result.correct) {
         setSolved(prev => [...prev, challengeId]);
         setSolveCounts(prev => ({ ...prev, [challengeId]: (prev[challengeId] || 0) + 1 }));
-        setUserPoints(result.newPoints > 0 ? userPoints + result.newPoints : userPoints);
+        setUserPoints(result.newPoints > 0 ? result.newPoints : 0);
         setFeedback({ ok: true, msg: result.message });
         addXP(points);
         const lb = await fetchLeaderboard();
@@ -114,7 +116,7 @@ export default function CTFPage() {
       setSubmitting(false);
       setTimeout(() => setFeedback(null), 4000);
     }
-  }, [answer, userId, userPoints]);
+  }, [answer, userId]);
 
   async function loadHintsForChallenge(challengeId: number) {
     const [h, unlocked] = await Promise.all([getHints(challengeId), getUnlockedHints(userId)]);
@@ -321,7 +323,7 @@ export default function CTFPage() {
           <div className="max-w-2xl">
             <div className="flex items-center justify-between mb-6">
               <p className="font-mono text-sm" style={{ color: 'var(--text-2)' }}>Top hackers by total points</p>
-              <button onClick={loadData}
+              <button onClick={() => loadData(userId)}
                 className="font-mono text-xs px-3 py-1.5 rounded-md border transition-all"
                 style={{ borderColor: 'var(--border)', color: 'var(--text-3)' }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = '#0891b2'; e.currentTarget.style.color = '#0891b2'; }}
