@@ -29,19 +29,19 @@ function certificateHTML(courseTitle: string, completedAt: string): string {
 <title>SecLab Nigeria — Certificate of Completion</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: #09090b; color: #f4f4f5; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px; }
-  .cert { width: 800px; max-width: 100%; background: #111116; border: 2px solid #1e1e24; border-radius: 16px; padding: 60px; text-align: center; position: relative; overflow: hidden; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: #f4f4f5; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px; }
+  .cert { width: 800px; max-width: 100%; background: var(--surface); border: 2px solid var(--border); border-radius: 16px; padding: 60px; text-align: center; position: relative; overflow: hidden; }
   .cert::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(6,182,212,0.08) 0%, transparent 70%); pointer-events: none; }
   .logo { font-size: 24px; font-weight: 700; margin-bottom: 40px; }
-  .cert .accent { color: #06b6d4; }
-  .cert .amber { color: #f59e0b; }
+  .cert .accent { color: #00c9a7; }
+  .cert .amber { color: #f0a500; }
   .title { font-size: 12px; letter-spacing: 4px; color: #52525b; text-transform: uppercase; margin-bottom: 20px; }
   .course { font-size: 28px; font-weight: 700; color: #f4f4f5; margin-bottom: 30px; line-height: 1.3; }
-  .user { font-size: 20px; color: #06b6d4; margin-bottom: 30px; }
+  .user { font-size: 20px; color: #00c9a7; margin-bottom: 30px; }
   .meta { font-size: 13px; color: #52525b; margin-bottom: 50px; }
-  .footer { font-size: 11px; color: #3f3f46; border-top: 1px solid #1e1e24; padding-top: 20px; }
-  .badge { display: inline-block; background: rgba(245,158,11,0.12); color: #f59e0b; border: 1px solid rgba(245,158,11,0.25); padding: 4px 12px; border-radius: 20px; font-size: 11px; margin-bottom: 20px; }
-  @media print { body { background: #09090b; } .cert { border: 2px solid #06b6d4; } }
+  .footer { font-size: 11px; color: #3f3f46; border-top: 1px solid var(--border); padding-top: 20px; }
+  .badge { display: inline-block; background: rgba(245,158,11,0.12); color: #f0a500; border: 1px solid rgba(245,158,11,0.25); padding: 4px 12px; border-radius: 20px; font-size: 11px; margin-bottom: 20px; }
+  @media print { body { background: var(--bg); } .cert { border: 2px solid #00c9a7; } }
 </style>
 </head>
 <body>
@@ -198,24 +198,24 @@ export default function CoursesPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: '#09090b' }}>
+    <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
 
       {/* NAV */}
       <nav className="fixed top-0 left-0 right-0 z-50 h-16 flex items-center px-6"
-        style={{ background: 'rgba(9,9,11,0.9)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #1e1e24' }}>
+        style={{ background: 'rgba(9,9,11,0.9)', backdropFilter: 'blur(16px)', borderBottom: '1px solid var(--border)' }}>
         <div className="max-w-6xl mx-auto w-full flex items-center justify-between">
           <a href="/" className="flex items-center gap-3">
             <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
-              <path d="M14 2L25 8V20L14 26L3 20V8L14 2Z" stroke="#06b6d4" strokeWidth="1.5" fill="rgba(6,182,212,0.1)"/>
-              <path d="M9 14L12 17L19 10" stroke="#06b6d4" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M14 2L25 8V20L14 26L3 20V8L14 2Z" stroke="#00c9a7" strokeWidth="1.5" fill="rgba(6,182,212,0.1)"/>
+              <path d="M9 14L12 17L19 10" stroke="#00c9a7" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
             <span className="font-display font-bold text-sm" style={{ color: '#f4f4f5' }}>
-              Sec<span style={{ color: '#06b6d4' }}>Lab</span><span style={{ color: '#f59e0b' }}>NG</span>
+              Sec<span style={{ color: '#00c9a7' }}>Lab</span><span style={{ color: '#f0a500' }}>NG</span>
             </span>
           </a>
           <div className="flex items-center gap-6">
             <a href="/ctf" className="nav-link">CTF</a>
-            <a href="/courses" className="nav-link" style={{ color: '#f59e0b' }}>Courses</a>
+            <a href="/courses" className="nav-link" style={{ color: '#f0a500' }}>Courses</a>
             <a href="/recon" className="nav-link">Recon</a>
           </div>
         </div>
@@ -226,7 +226,7 @@ export default function CoursesPage() {
       {activeCourse && (
         <div
           className="md:hidden fixed inset-0 z-40"
-          style={{ background: '#09090b', overflow: 'hidden' }}
+          style={{ background: 'var(--bg)', overflow: 'hidden' }}
         >
           {/* Scrollable lesson/module content */}
           <div
@@ -244,7 +244,7 @@ export default function CoursesPage() {
             <button
               onClick={() => { setActiveCourse(null); setActiveLesson(null); }}
               className="flex items-center gap-1.5 font-mono text-xs mb-5 transition-colors"
-              style={{ color: '#f59e0b' }}
+              style={{ color: '#f0a500' }}
             >
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
               Back to courses
@@ -263,7 +263,7 @@ export default function CoursesPage() {
                       onClick={() => setActiveLesson(null)}
                       className="flex items-center gap-2 font-mono text-xs mb-5 transition-colors"
                       style={{ color: '#52525b' }}
-                      onMouseEnter={e => (e.currentTarget.style.color = '#f59e0b')}
+                      onMouseEnter={e => (e.currentTarget.style.color = '#f0a500')}
                       onMouseLeave={e => (e.currentTarget.style.color = '#52525b')}>
                       <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
                       Back to modules
@@ -271,7 +271,7 @@ export default function CoursesPage() {
 
                     <div className="flex items-start justify-between gap-4 mb-6">
                       <div>
-                        <p className="font-mono text-[10px] mb-2" style={{ color: '#f59e0b' }}>{lessonModule?.title}</p>
+                        <p className="font-mono text-[10px] mb-2" style={{ color: '#f0a500' }}>{lessonModule?.title}</p>
                         <h2 className="font-display font-bold text-lg" style={{ color: '#f4f4f5' }}>{activeLesson.title}</h2>
                       </div>
                       <button
@@ -279,7 +279,7 @@ export default function CoursesPage() {
                         className="flex-shrink-0 flex items-center gap-2 font-mono text-xs px-3 py-2 rounded-lg transition-all"
                         style={{
                           background: courseProgress[activeLesson.key] ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.08)',
-                          color: courseProgress[activeLesson.key] ? '#22c55e' : '#f59e0b',
+                          color: courseProgress[activeLesson.key] ? '#10b981' : '#f0a500',
                           border: courseProgress[activeLesson.key] ? '1px solid rgba(34,197,94,0.2)' : '1px solid rgba(245,158,11,0.2)',
                         }}>
                         <span>{courseProgress[activeLesson.key] ? '✓ Done' : 'Mark complete'}</span>
@@ -296,16 +296,16 @@ export default function CoursesPage() {
                         if (para.startsWith('```')) {
                           const code = para.replace(/```[a-z]*\n?/g, '');
                           return <pre key={i} className="rounded-lg p-4 my-4 text-xs overflow-x-auto"
-                            style={{ background: '#111116', border: '1px solid #1e1e24', color: '#a1a1aa' }}>{code}</pre>;
+                            style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: '#a1a1aa' }}>{code}</pre>;
                         }
-                        const formatted = para.replace(/`([^`]+)`/g, '<code style="background:#1e1e24;padding:1px 5px;border-radius:3px;color:#f59e0b;font-size:0.85em">$1</code>');
+                        const formatted = para.replace(/`([^`]+)`/g, '<code style="background:var(--border);padding:1px 5px;border-radius:3px;color:#f0a500;font-size:0.85em">$1</code>');
                         return <p key={i} className="mb-4 leading-relaxed"
                           dangerouslySetInnerHTML={{ __html: formatted }} />;
                       })}
                     </div>
 
                     <div className="mt-8 pt-6 flex items-center justify-between"
-                      style={{ borderTop: '1px solid #1e1e24' }}>
+                      style={{ borderTop: '1px solid var(--border)' }}>
                       {(() => {
                         const allLessons = course.modules.flatMap(m => m.lessons);
                         const idx = allLessons.findIndex(l => l.key === activeLesson.key);
@@ -317,7 +317,7 @@ export default function CoursesPage() {
                               <button
                                 onClick={() => setActiveLesson(prev)}
                                 className="flex items-center gap-2 font-mono text-xs px-3 py-2 rounded-lg"
-                                style={{ color: '#52525b', background: '#111116', border: '1px solid #1e1e24' }}>
+                                style={{ color: '#52525b', background: 'var(--surface)', border: '1px solid var(--border)' }}>
                                 ← {prev.title}
                               </button>
                             ) : <div />}
@@ -325,7 +325,7 @@ export default function CoursesPage() {
                               <button
                                 onClick={() => setActiveLesson(next)}
                                 className="flex items-center gap-2 font-mono text-xs px-3 py-2 rounded-lg"
-                                style={{ color: '#06b6d4', background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.2)' }}>
+                                style={{ color: '#00c9a7', background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.2)' }}>
                                 {next.title} →
                               </button>
                             ) : <div />}
@@ -348,12 +348,12 @@ export default function CoursesPage() {
                   <div className="space-y-3">
                     {course.modules.map((mod, mi) => (
                       <div key={mi} className="rounded-xl overflow-hidden"
-                        style={{ background: '#111116', border: '1px solid #1e1e24' }}>
-                        <div className="px-4 py-3" style={{ borderBottom: '1px solid #1e1e24', background: '#16161c' }}>
-                          <p className="font-mono text-xs font-semibold" style={{ color: '#f59e0b' }}>{mod.title}</p>
+                        style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
+                        <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--border)', background: '#16161c' }}>
+                          <p className="font-mono text-xs font-semibold" style={{ color: '#f0a500' }}>{mod.title}</p>
                           <p className="font-mono text-[10px] mt-0.5" style={{ color: '#52525b' }}>{mod.lessons.length} lessons</p>
                         </div>
-                        <div className="divide-y" style={{ borderColor: '#1e1e24' }}>
+                        <div className="divide-y" style={{ borderColor: 'var(--border)' }}>
                           {mod.lessons.map((lesson, li) => {
                             const done = !!courseProgress[lesson.key];
                             return (
@@ -365,7 +365,7 @@ export default function CoursesPage() {
                                 onMouseEnter={e => (e.currentTarget.style.background = '#16161c')}
                                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
                                 <div className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0"
-                                  style={{ background: done ? '#22c55e' : 'transparent', border: done ? '#22c55e' : '#3f3f46' }}>
+                                  style={{ background: done ? '#10b981' : 'transparent', border: done ? '#10b981' : '#3f3f46' }}>
                                   {done && <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="#000" strokeWidth="1.5" strokeLinecap="round"/></svg>}
                                 </div>
                                 <p className="flex-1 font-mono text-xs" style={{ color: done ? '#52525b' : '#a1a1aa', textDecoration: done ? 'line-through' : 'none' }}>
@@ -395,16 +395,16 @@ export default function CoursesPage() {
           style={{
             width: '100%',
             flexShrink: 0,
-            borderRight: activeCourse ? '1px solid #1e1e24' : 'none',
+            borderRight: activeCourse ? '1px solid var(--border)' : 'none',
             maxHeight: '100vh',
             position: 'sticky',
             top: 0,
           }}>
           {/* HERO */}
-          <section className="px-6 pt-10 pb-8" style={{ borderBottom: '1px solid #1e1e24' }}>
+          <section className="px-6 pt-10 pb-8" style={{ borderBottom: '1px solid var(--border)' }}>
             <span className="section-label">// FREE SECURITY TRAINING</span>
             <h1 className="font-display font-bold text-3xl mt-3 mb-2" style={{ color: '#f4f4f5' }}>
-              Learn by <span style={{ color: '#f59e0b' }}>breaking</span> things
+              Learn by <span style={{ color: '#f0a500' }}>breaking</span> things
             </h1>
             <p className="text-sm" style={{ color: '#71717a' }}>
               4 courses · Real content · Progress syncs to the cloud
@@ -418,7 +418,7 @@ export default function CoursesPage() {
                 <div className="flex items-center gap-3 font-mono text-sm" style={{ color: '#52525b' }}>
                   <svg className="animate-spin" width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <path d="M8 1V4M8 12V15M1 8H4M12 8H15M3.05 3.05L5.28 5.28M10.72 10.72L12.95 12.95M3.05 12.95L5.28 10.72M10.72 5.28L12.95 3.05"
-                      stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round"/>
+                      stroke="#f0a500" strokeWidth="1.5" strokeLinecap="round"/>
                   </svg>
                   Loading...
                 </div>
@@ -439,8 +439,8 @@ export default function CoursesPage() {
                     <div key={course.id}
                       className="rounded-xl p-5 cursor-pointer transition-all relative overflow-visible"
                       style={{
-                        background: isActive ? '#16161c' : '#111116',
-                        border: `1px solid ${isActive ? '#f59e0b' : '#1e1e24'}`,
+                        background: isActive ? '#16161c' : 'var(--surface)',
+                        border: `1px solid ${isActive ? '#f0a500' : 'var(--border)'}`,
                       }}>
 
                       {/* Progress ring — top-right corner */}
@@ -448,10 +448,10 @@ export default function CoursesPage() {
                         <div className="absolute top-3 right-3">
                           <svg width="48" height="48" viewBox="0 0 48 48">
                             {/* Dark track */}
-                            <circle cx="24" cy="24" r="20" fill="none" stroke="#1e1e24" strokeWidth="4"/>
+                            <circle cx="24" cy="24" r="20" fill="none" stroke="var(--border)" strokeWidth="4"/>
                             {/* Progress arc */}
                             <circle cx="24" cy="24" r="20" fill="none"
-                              stroke={isComplete ? '#22c55e' : '#f59e0b'}
+                              stroke={isComplete ? '#10b981' : '#f0a500'}
                               strokeWidth="4"
                               strokeLinecap="round"
                               strokeDasharray={circumference}
@@ -463,7 +463,7 @@ export default function CoursesPage() {
                             {isComplete ? (
                               <g transform="translate(24 24)">
                                 <circle cx="0" cy="0" r="9" fill="rgba(34,197,94,0.15)"/>
-                                <path d="M-4 0L-1 3L5 -3" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                                <path d="M-4 0L-1 3L5 -3" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
                               </g>
                             ) : (
                               <text x="24" y="24" textAnchor="middle" dominantBaseline="central"
@@ -487,7 +487,7 @@ export default function CoursesPage() {
                         </div>
                         {isEnrolled && (
                           <span className="font-mono text-[10px] px-2 py-0.5 rounded flex-shrink-0"
-                            style={{ background: 'rgba(245,158,11,0.1)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.2)' }}>
+                            style={{ background: 'rgba(245,158,11,0.1)', color: '#f0a500', border: '1px solid rgba(245,158,11,0.2)' }}>
                             ENROLLED
                           </span>
                         )}
@@ -526,7 +526,7 @@ export default function CoursesPage() {
                               ? 'rgba(245,158,11,0.15)'
                               : 'rgba(245,158,11,0.08)'
                             : 'rgba(6,182,212,0.08)',
-                          color: isEnrolled ? '#f59e0b' : '#06b6d4',
+                          color: isEnrolled ? '#f0a500' : '#00c9a7',
                           border: isEnrolled
                             ? isActive
                               ? '1px solid rgba(245,158,11,0.4)'
@@ -559,12 +559,12 @@ export default function CoursesPage() {
               <div className="flex-1 overflow-y-auto w-full" style={{ maxHeight: '100vh' }}>
                 {/* Lesson header */}
                 <div className="px-8 py-8 sticky top-0 z-10"
-                  style={{ background: '#09090b', borderBottom: '1px solid #1e1e24' }}>
+                  style={{ background: 'var(--bg)', borderBottom: '1px solid var(--border)' }}>
                   <button
                     onClick={() => setActiveLesson(null)}
                     className="flex items-center gap-2 font-mono text-xs mb-5 transition-colors"
                     style={{ color: '#52525b' }}
-                    onMouseEnter={e => (e.currentTarget.style.color = '#f59e0b')}
+                    onMouseEnter={e => (e.currentTarget.style.color = '#f0a500')}
                     onMouseLeave={e => (e.currentTarget.style.color = '#52525b')}>
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
                     Back to modules
@@ -572,7 +572,7 @@ export default function CoursesPage() {
 
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="font-mono text-[10px] mb-2" style={{ color: '#f59e0b' }}>{lessonModule?.title}</p>
+                      <p className="font-mono text-[10px] mb-2" style={{ color: '#f0a500' }}>{lessonModule?.title}</p>
                       <h2 className="font-display font-bold text-xl" style={{ color: '#f4f4f5' }}>{activeLesson.title}</h2>
                     </div>
                     <button
@@ -580,7 +580,7 @@ export default function CoursesPage() {
                       className="flex-shrink-0 flex items-center gap-2 font-mono text-xs px-4 py-2 rounded-lg transition-all"
                       style={{
                         background: courseProgress[activeLesson.key] ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.08)',
-                        color: courseProgress[activeLesson.key] ? '#22c55e' : '#f59e0b',
+                        color: courseProgress[activeLesson.key] ? '#10b981' : '#f0a500',
                         border: courseProgress[activeLesson.key] ? '1px solid rgba(34,197,94,0.2)' : '1px solid rgba(245,158,11,0.2)',
                       }}>
                       <span>{courseProgress[activeLesson.key] ? '✓ Completed' : 'Mark complete'}</span>
@@ -602,10 +602,10 @@ export default function CoursesPage() {
                       if (para.startsWith('```')) {
                         const code = para.replace(/```[a-z]*\n?/g, '');
                         return <pre key={i} className="rounded-lg p-4 my-4 text-xs overflow-x-auto"
-                          style={{ background: '#111116', border: '1px solid #1e1e24', color: '#a1a1aa' }}>{code}</pre>;
+                          style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: '#a1a1aa' }}>{code}</pre>;
                       }
                       // Format inline code
-                      const formatted = para.replace(/`([^`]+)`/g, '<code style="background:#1e1e24;padding:1px 5px;border-radius:3px;color:#f59e0b;font-size:0.85em">$1</code>');
+                      const formatted = para.replace(/`([^`]+)`/g, '<code style="background:var(--border);padding:1px 5px;border-radius:3px;color:#f0a500;font-size:0.85em">$1</code>');
                       return <p key={i} className="mb-4 leading-relaxed"
                         dangerouslySetInnerHTML={{ __html: formatted }} />;
                     })}
@@ -613,7 +613,7 @@ export default function CoursesPage() {
 
                   {/* Next/Prev lesson navigation */}
                   <div className="mt-10 pt-6 flex items-center justify-between"
-                    style={{ borderTop: '1px solid #1e1e24' }}>
+                    style={{ borderTop: '1px solid var(--border)' }}>
                     {(() => {
                       const allLessons = course.modules.flatMap(m => m.lessons);
                       const idx = allLessons.findIndex(l => l.key === activeLesson.key);
@@ -625,7 +625,7 @@ export default function CoursesPage() {
                             <button
                               onClick={() => setActiveLesson(prev)}
                               className="flex items-center gap-2 font-mono text-xs px-4 py-2 rounded-lg transition-all"
-                              style={{ color: '#52525b', background: '#111116', border: '1px solid #1e1e24' }}>
+                              style={{ color: '#52525b', background: 'var(--surface)', border: '1px solid var(--border)' }}>
                               ← {prev.title}
                             </button>
                           ) : <div />}
@@ -633,7 +633,7 @@ export default function CoursesPage() {
                             <button
                               onClick={() => setActiveLesson(next)}
                               className="flex items-center gap-2 font-mono text-xs px-4 py-2 rounded-lg transition-all"
-                              style={{ color: '#06b6d4', background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.2)' }}>
+                              style={{ color: '#00c9a7', background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.2)' }}>
                               {next.title} →
                             </button>
                           ) : <div />}
@@ -650,12 +650,12 @@ export default function CoursesPage() {
           return (
             <div className="flex-1 overflow-y-auto w-full" style={{ maxHeight: '100vh' }}>
               <div className="px-8 py-8 sticky top-0 z-10"
-                style={{ background: '#09090b', borderBottom: '1px solid #1e1e24' }}>
+                style={{ background: 'var(--bg)', borderBottom: '1px solid var(--border)' }}>
                 <button
                   onClick={() => setActiveCourse(null)}
                   className="flex items-center gap-2 font-mono text-xs mb-5 transition-colors"
                   style={{ color: '#52525b' }}
-                  onMouseEnter={e => (e.currentTarget.style.color = '#f59e0b')}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#f0a500')}
                   onMouseLeave={e => (e.currentTarget.style.color = '#52525b')}>
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
                   All courses
@@ -669,14 +669,14 @@ export default function CoursesPage() {
               <div className="px-8 py-6 space-y-6 max-w-2xl">
                 {course.modules.map((mod, mi) => (
                   <div key={mi} className="rounded-xl overflow-hidden"
-                    style={{ background: '#111116', border: '1px solid #1e1e24' }}>
-                    <div className="px-6 py-4" style={{ borderBottom: '1px solid #1e1e24', background: '#16161c' }}>
-                      <p className="font-mono text-xs font-semibold" style={{ color: '#f59e0b' }}>{mod.title}</p>
+                    style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
+                    <div className="px-6 py-4" style={{ borderBottom: '1px solid var(--border)', background: '#16161c' }}>
+                      <p className="font-mono text-xs font-semibold" style={{ color: '#f0a500' }}>{mod.title}</p>
                       <p className="font-mono text-[10px] mt-0.5" style={{ color: '#52525b' }}>
                         {mod.lessons.length} lessons
                       </p>
                     </div>
-                    <div className="divide-y" style={{ borderColor: '#1e1e24' }}>
+                    <div className="divide-y" style={{ borderColor: 'var(--border)' }}>
                       {mod.lessons.map((lesson, li) => {
                         const done = !!courseProgress[lesson.key];
                         return (
@@ -689,8 +689,8 @@ export default function CoursesPage() {
                             onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
                             <div className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 transition-all"
                               style={{
-                                background: done ? '#22c55e' : 'transparent',
-                                border: done ? '#22c55e' : '#3f3f46',
+                                background: done ? '#10b981' : 'transparent',
+                                border: done ? '#10b981' : '#3f3f46',
                               }}>
                               {done && (
                                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
@@ -722,7 +722,7 @@ export default function CoursesPage() {
         {/* Empty state — no course selected — hidden on mobile */}
         {!activeCourse && (
           <div className="hidden md:flex flex-1 items-center justify-center p-8"
-            style={{ background: '#09090b' }}>
+            style={{ background: 'var(--bg)' }}>
             <div className="text-center">
               <span className="text-5xl mb-4 block">📚</span>
               <p className="font-display font-semibold text-lg mb-2" style={{ color: '#f4f4f5' }}>
@@ -737,15 +737,15 @@ export default function CoursesPage() {
       </div>
 
       {/* FOOTER */}
-      <footer className="px-6 py-8" style={{ borderTop: '1px solid #1e1e24' }}>
+      <footer className="px-6 py-8" style={{ borderTop: '1px solid var(--border)' }}>
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <svg width="20" height="20" viewBox="0 0 28 28" fill="none">
-              <path d="M14 2L25 8V20L14 26L3 20V8L14 2Z" stroke="#06b6d4" strokeWidth="1.5" fill="rgba(6,182,212,0.1)"/>
-              <path d="M9 14L12 17L19 10" stroke="#06b6d4" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M14 2L25 8V20L14 26L3 20V8L14 2Z" stroke="#00c9a7" strokeWidth="1.5" fill="rgba(6,182,212,0.1)"/>
+              <path d="M9 14L12 17L19 10" stroke="#00c9a7" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
             <span className="font-display font-bold text-xs" style={{ color: '#f4f4f5' }}>
-              Sec<span style={{ color: '#06b6d4' }}>Lab</span><span style={{ color: '#f59e0b' }}>NG</span>
+              Sec<span style={{ color: '#00c9a7' }}>Lab</span><span style={{ color: '#f0a500' }}>NG</span>
             </span>
           </div>
           <p className="font-mono text-[10px]" style={{ color: '#3f3f46' }}>© 2026 SecLab Nigeria</p>
@@ -757,9 +757,9 @@ export default function CoursesPage() {
         <div
           className="fixed bottom-6 right-6 z-50 cursor-pointer rounded-xl shadow-2xl flex items-center gap-3 px-4 py-3"
           style={{
-            background: '#111116',
-            border: '1px solid #1e1e24',
-            borderLeft: '4px solid #22c55e',
+            background: 'var(--surface)',
+            border: '1px solid var(--border)',
+            borderLeft: '4px solid #10b981',
             minWidth: '280px',
             animation: 'toast-in 0.3s ease-out forwards',
           }}
@@ -783,7 +783,7 @@ export default function CoursesPage() {
                   printWindow.print();
                 }}
                 className="mt-2 font-mono text-[10px] py-1 px-3 rounded-lg transition-all"
-                style={{ background: 'rgba(245,158,11,0.15)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.25)' }}>
+                style={{ background: 'rgba(245,158,11,0.15)', color: '#f0a500', border: '1px solid rgba(245,158,11,0.25)' }}>
                 🏆 Download Certificate →
               </button>
             )}
@@ -795,7 +795,7 @@ export default function CoursesPage() {
       {confetti && (
         <div className="fixed inset-0 pointer-events-none z-[9999]">
           {Array.from({ length: 50 }).map((_, i) => {
-            const colors = ['#06b6d4', '#f59e0b', '#22c55e', '#a1a1aa', '#f4f4f5', '#ef4444', '#8b5cf6'];
+            const colors = ['#00c9a7', '#f0a500', '#10b981', '#a1a1aa', '#f4f4f5', '#f05252', '#8b5cf6'];
             const color = colors[i % colors.length];
             const left = Math.random() * 100;
             const delay = Math.random() * 0.6;

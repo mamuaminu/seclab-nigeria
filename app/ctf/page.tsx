@@ -5,9 +5,9 @@ import { supabase, fetchChallenges, fetchLeaderboard, submitFlag, getSolveCount,
 import StreakCounter, { addXP } from '@/app/components/StreakCounter';
 
 const DIFFICULTY = {
-  Easy:   { color: '#059669', bg: '#d1fae5', border: '#6ee7b7', text: '#065f46' },
-  Medium: { color: '#d97706', bg: '#fef3c7', border: '#fcd34d', text: '#78350f' },
-  Hard:   { color: '#dc2626', bg: '#fee2e2', border: '#fca5a5', text: '#7f1d1d' },
+  Easy:   { color: '#10b981', bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.2)', text: '#10b981' },
+  Medium: { color: '#f0a500', bg: 'rgba(240,165,0,0.08)', border: 'rgba(240,165,0,0.2)', text: '#f0a500' },
+  Hard:   { color: '#f05252', bg: 'rgba(240,82,82,0.08)', border: 'rgba(240,82,82,0.2)', text: '#f05252' },
 };
 
 function getUserId() {
@@ -46,7 +46,6 @@ export default function CTFPage() {
   const [submitting, setSubmitting] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [tempName, setTempName] = useState('');
-  const [userId, setUserId] = useState('ssr');
   const [tappedId, setTappedId] = useState<number | null>(null);
   const [dailyChallenge, setDailyChallenge] = useState<any>(null);
   const categories = ['All', 'Web', 'Crypto', 'Network', 'Forensics'];
@@ -54,7 +53,6 @@ export default function CTFPage() {
   useEffect(() => {
     const uid = getUserId();
     const uname = getUsername();
-    setUserId(uid);
     setTempName(uname);
     upsertProfile(uid, uname).catch(console.error);
     loadData(uid);
@@ -96,7 +94,7 @@ export default function CTFPage() {
     if (!answer.trim()) return;
     setSubmitting(true);
     try {
-      const result = await submitFlag(userId, getUsername(), challengeId, answer.trim(), points);
+      const result = await submitFlag(getUserId(), getUsername(), challengeId, answer.trim(), points);
       if (result.correct) {
         setSolved(prev => [...prev, challengeId]);
         setSolveCounts(prev => ({ ...prev, [challengeId]: (prev[challengeId] || 0) + 1 }));
@@ -116,17 +114,17 @@ export default function CTFPage() {
       setSubmitting(false);
       setTimeout(() => setFeedback(null), 4000);
     }
-  }, [answer, userId]);
+  }, [answer]);
 
   async function loadHintsForChallenge(challengeId: number) {
-    const [h, unlocked] = await Promise.all([getHints(challengeId), getUnlockedHints(userId)]);
+    const [h, unlocked] = await Promise.all([getHints(challengeId), getUnlockedHints(getUserId())]);
     setHints(h);
     setUnlockedHints(unlocked);
   }
 
   async function handleUnlockHint(hintId: number, cost: number) {
     if (userPoints < cost) return;
-    await unlockHint(userId, hintId);
+    await unlockHint(getUserId(), hintId);
     setUnlockedHints(prev => [...prev, hintId]);
     setUserPoints(prev => prev - cost);
   }
@@ -138,21 +136,22 @@ export default function CTFPage() {
     <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
 
       {/* ── NAV ── */}
-      <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b" style={{ borderColor: 'var(--border)' }}>
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+      <nav className="sticky top-0 z-50 glass">
+        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
           <a href="/" className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#0891b2' }}>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M8 1L15 4.5V11.5L8 15L1 11.5V4.5L8 1Z" stroke="white" strokeWidth="1.5" fill="none"/>
-                <path d="M5.5 8L7 9.5L10.5 6" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+              style={{ background: 'linear-gradient(135deg, #00c9a7 0%, #00e8c6 100%)', boxShadow: '0 0 20px rgba(0,201,167,0.3)' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2L21 7V17L12 22L3 17V7L12 2Z" stroke="black" strokeWidth="1.5"/>
+                <path d="M8 12L10.5 14.5L16 9" stroke="black" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
             </div>
             <span className="font-display font-bold text-sm tracking-tight" style={{ color: 'var(--text)' }}>
-              Sec<span style={{ color: '#0891b2' }}>Lab</span><span style={{ color: '#d97706' }}>.ng</span>
+              Sec<span style={{ color: '#00c9a7' }}>Lab</span><span style={{ color: '#f0a500' }}>.ng</span>
             </span>
           </a>
           <div className="flex items-center gap-6">
-            <a href="/ctf" className="nav-link" style={{ color: '#0891b2' }}>CTF</a>
+            <a href="/ctf" className="nav-link" style={{ color: '#00c9a7' }}>CTF</a>
             <a href="/courses" className="nav-link" style={{ color: 'var(--text-2)' }}>Courses</a>
             <a href="/recon" className="nav-link" style={{ color: 'var(--text-2)' }}>Recon</a>
           </div>
@@ -161,12 +160,12 @@ export default function CTFPage() {
 
       {/* ── HEADER ── */}
       <div className="pt-12 pb-0 px-6" style={{ borderBottom: '1px solid var(--border)' }}>
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <span className="section-label">// CTF PLATFORM</span>
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mt-3 mb-8">
             <div>
               <h1 className="font-display font-bold text-4xl" style={{ color: 'var(--text)' }}>
-                <span style={{ color: '#0891b2' }}>Sec</span>Lab CTF
+                <span style={{ color: '#00c9a7' }}>Sec</span>Lab <span className="gradient-text">CTF</span>
               </h1>
               <p className="font-mono text-sm mt-1" style={{ color: 'var(--text-3)' }}>
                 {challenges.length} challenges · {totalSolves.toLocaleString()} solves
@@ -191,8 +190,8 @@ export default function CTFPage() {
               )}
               <div className="flex items-center gap-4">
                 <div className="font-mono text-xs" style={{ color: 'var(--text-3)' }}>
-                  <span style={{ color: '#0891b2' }}>{userPoints.toLocaleString()}</span> pts ·{' '}
-                  <span style={{ color: '#d97706' }}>{solved.length}</span> solves
+                  <span style={{ color: '#00c9a7' }}>{userPoints.toLocaleString()}</span> pts ·{' '}
+                  <span style={{ color: '#f0a500' }}>{solved.length}</span> solves
                 </div>
                 <StreakCounter />
               </div>
@@ -205,8 +204,8 @@ export default function CTFPage() {
               <button key={id} onClick={() => setTab(id as typeof tab)}
                 className="font-mono text-sm pb-3 border-b-2 transition-all"
                 style={{
-                  borderColor: tab === id ? '#0891b2' : 'transparent',
-                  color: tab === id ? '#0891b2' : 'var(--text-3)',
+                  borderColor: tab === id ? '#00c9a7' : 'transparent',
+                  color: tab === id ? '#00c9a7' : 'var(--text-3)',
                 }}>
                 {label}
               </button>
@@ -216,7 +215,7 @@ export default function CTFPage() {
       </div>
 
       {/* ── CONTENT ── */}
-      <div className="max-w-6xl mx-auto px-6 py-8">
+      <div className="max-w-5xl mx-auto px-6 py-8">
 
         {tab === 'challenges' && (
           <>
@@ -225,7 +224,7 @@ export default function CTFPage() {
                 <div className="flex items-center gap-3 font-mono text-sm" style={{ color: 'var(--text-3)' }}>
                   <svg className="animate-spin" width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <path d="M8 1V4M8 12V15M1 8H4M12 8H15M3.05 3.05L5.28 5.28M10.72 10.72L12.95 12.95M3.05 12.95L5.28 10.72M10.72 5.28L12.95 3.05"
-                      stroke="#0891b2" strokeWidth="1.5" strokeLinecap="round"/>
+                      stroke="#00c9a7" strokeWidth="1.5" strokeLinecap="round"/>
                   </svg>
                   Loading...
                 </div>
@@ -238,9 +237,9 @@ export default function CTFPage() {
                     <button key={cat} onClick={() => setFilterCat(cat)}
                       className="font-mono text-xs px-3 py-1.5 rounded-md border transition-all"
                       style={{
-                        borderColor: filterCat === cat ? '#0891b2' : 'var(--border)',
-                        color: filterCat === cat ? '#0891b2' : 'var(--text-3)',
-                        background: filterCat === cat ? 'rgba(8,145,178,0.06)' : 'transparent',
+                        borderColor: filterCat === cat ? '#00c9a7' : 'var(--border-2)',
+                        color: filterCat === cat ? '#00c9a7' : 'var(--text-3)',
+                        background: filterCat === cat ? 'rgba(0,201,167,0.06)' : 'transparent',
                       }}>
                       {cat}
                     </button>
@@ -249,67 +248,153 @@ export default function CTFPage() {
 
                 {/* Daily Challenge Banner */}
                 {dailyChallenge && (
-                  <div className="mb-8 rounded-xl p-5"
-                    style={{ background: '#fef3c7', border: '1px solid #fcd34d', borderLeft: '4px solid #d97706' }}>
+                  <div className="mb-8 rounded-2xl p-5"
+                    style={{ background: 'rgba(240,165,0,0.06)', border: '1px solid rgba(240,165,0,0.2)', borderLeft: '4px solid #f0a500' }}>
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="font-mono text-[10px] uppercase tracking-widest font-semibold" style={{ color: '#d97706' }}>
+                      <span className="font-mono text-[10px] uppercase tracking-widest font-semibold" style={{ color: '#f0a500' }}>
                         ⚡ Daily Challenge
                       </span>
-                      <span className="font-mono text-[10px] px-2 py-0.5 rounded" style={{ background: '#fff', color: '#d97706' }}>
-                        {dailyChallenge.points} pts
-                      </span>
                     </div>
-                    <h3 className="font-display font-bold text-lg mb-2" style={{ color: 'var(--text)' }}>{dailyChallenge.title}</h3>
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="font-mono text-xs px-2 py-1 rounded" style={{ background: '#fff', color: '#0891b2' }}>{dailyChallenge.category}</span>
-                      <span className="font-mono text-xs px-2 py-1 rounded" style={{ background: DIFFICULTY[dailyChallenge.difficulty as keyof typeof DIFFICULTY]?.bg, color: DIFFICULTY[dailyChallenge.difficulty as keyof typeof DIFFICULTY]?.text }}>
-                        {dailyChallenge.difficulty}
-                      </span>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                      <div className="flex-1">
+                        <p className="font-display font-bold text-base mb-1" style={{ color: 'var(--text)' }}>{dailyChallenge.title}</p>
+                        <p className="font-mono text-xs" style={{ color: 'var(--text-2)' }}>{dailyChallenge.category} · {dailyChallenge.points} pts · {dailyChallenge.solve_count || 0} solves</p>
+                      </div>
+                      <button
+                        onClick={() => { setSelected(dailyChallenge.id); loadHintsForChallenge(dailyChallenge.id); setTappedId(dailyChallenge.id); }}
+                        className="font-mono text-xs px-4 py-2 rounded-lg font-semibold transition-all whitespace-nowrap"
+                        style={{ background: 'rgba(240,165,0,0.12)', color: '#f0a500', border: '1px solid rgba(240,165,0,0.25)' }}>
+                        Attempt →
+                      </button>
                     </div>
-                    <button
-                      onClick={() => { setSelected(dailyChallenge.id); setAnswer(''); setHints([]); setUnlockedHints([]); setFeedback(null); loadHintsForChallenge(dailyChallenge.id); }}
-                      className="font-mono text-xs py-2 px-4 rounded-md" style={{ background: '#d97706', color: '#fff' }}>
-                      Solve Now →
-                    </button>
                   </div>
                 )}
 
                 {/* Challenge Grid */}
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div className="grid gap-3">
                   {filtered.map(ch => {
-                    const d = DIFFICULTY[ch.difficulty as keyof typeof DIFFICULTY] || DIFFICULTY.Easy;
                     const isSolved = solved.includes(ch.id);
+                    const isSelected = selected === ch.id;
+                    const diff = DIFFICULTY[ch.difficulty as keyof typeof DIFFICULTY];
                     return (
                       <div key={ch.id}
-                        className="card rounded-xl p-5 cursor-pointer"
-                        onClick={() => { setSelected(ch.id); setAnswer(''); setHints([]); setUnlockedHints([]); setFeedback(null); setTappedId(ch.id); loadHintsForChallenge(ch.id); setTimeout(() => setTappedId(null), 150); }}
-                        style={{ transform: tappedId === ch.id ? 'scale(0.98)' : undefined }}>
-                        {isSolved && (
-                          <div className="absolute top-3 right-3 font-mono text-[10px] px-2 py-0.5 rounded" style={{ background: '#d1fae5', color: '#059669' }}>
-                            ✓ Solved
+                        className="card p-5 cursor-pointer"
+                        onClick={() => { setSelected(isSelected ? null : ch.id); if (!isSelected) { loadHintsForChallenge(ch.id); setAnswer(''); setFeedback(null); } }}
+                        style={isSelected ? { borderColor: 'var(--brand-border)', background: 'var(--surface-2)' } : {}}>
+                        <div className="flex items-start gap-4">
+                          {/* Solved indicator */}
+                          <div className="flex-shrink-0 mt-0.5">
+                            {isSolved ? (
+                              <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'rgba(16,185,129,0.15)' }}>
+                                <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                                  <path d="M2 6L5 9L10 3" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round"/>
+                                </svg>
+                              </div>
+                            ) : (
+                              <div className="w-5 h-5 rounded-full" style={{ border: '1.5px solid var(--border-2)' }} />
+                            )}
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 mb-1">
+                              <span className="font-display font-semibold text-sm" style={{ color: 'var(--text)' }}>{ch.title}</span>
+                              <span className="font-mono text-[10px] px-2 py-0.5 rounded-md"
+                                style={{ background: diff.bg, color: diff.color, border: `1px solid ${diff.border}` }}>
+                                {ch.difficulty}
+                              </span>
+                              <span className="font-mono text-[10px] px-2 py-0.5 rounded-md"
+                                style={{ background: 'var(--surface-3)', color: 'var(--text-3)' }}>
+                                {ch.category}
+                              </span>
+                            </div>
+                            <p className="font-mono text-xs truncate" style={{ color: 'var(--text-3)' }}>{ch.description}</p>
+                          </div>
+
+                          <div className="flex-shrink-0 text-right">
+                            <div className="font-mono text-sm font-semibold" style={{ color: '#00c9a7' }}>{ch.points}</div>
+                            <div className="font-mono text-[10px]" style={{ color: 'var(--text-4)' }}>{solveCounts[ch.id] || 0} solves</div>
+                          </div>
+                        </div>
+
+                        {/* Expanded: solve panel */}
+                        {isSelected && (
+                          <div className="mt-5 pt-5" style={{ borderTop: '1px solid var(--border)' }}>
+                            {ch.flag && (
+                              <p className="font-mono text-xs mb-4 px-4 py-3 rounded-xl"
+                                style={{ background: 'var(--surface-3)', color: 'var(--text-3)', border: '1px solid var(--border)' }}>
+                                💡 <span style={{ color: 'var(--text-2)' }}>Hint:</span> {ch.flag}
+                              </p>
+                            )}
+
+                            {/* Hints */}
+                            {hints.length > 0 && (
+                              <div className="space-y-2 mb-4">
+                                <p className="font-mono text-[10px] uppercase tracking-widest mb-2" style={{ color: 'var(--text-4)' }}>Hints</p>
+                                {hints.map((hint, i) => {
+                                  const isUnlocked = unlockedHints.includes(hint.id);
+                                  const cost = hint.unlock_cost;
+                                  return (
+                                    <div key={hint.id} className="rounded-xl p-3"
+                                      style={{ background: 'var(--surface-3)', border: '1px solid var(--border)' }}>
+                                      <div className="flex items-center justify-between gap-3 mb-1">
+                                        <span className="font-mono text-xs font-semibold" style={{ color: 'var(--text-2)' }}>
+                                          Hint {i + 1}
+                                        </span>
+                                        {!isUnlocked && (
+                                          <button
+                                            onClick={() => handleUnlockHint(hint.id, cost)}
+                                            disabled={userPoints < cost}
+                                            className="font-mono text-[10px] px-3 py-1 rounded-md border"
+                                            style={{
+                                              borderColor: userPoints >= cost ? '#f0a500' : 'var(--border-2)',
+                                              color: userPoints >= cost ? '#f0a500' : 'var(--text-3)',
+                                              background: userPoints >= cost ? 'rgba(240,165,0,0.08)' : 'transparent',
+                                              cursor: userPoints >= cost ? 'pointer' : 'not-allowed',
+                                            }}>
+                                            Unlock — {cost} pts
+                                          </button>
+                                        )}
+                                        {isUnlocked && (
+                                          <span className="font-mono text-[10px] px-2 py-0.5 rounded" style={{ background: 'rgba(16,185,129,0.08)', color: '#10b981' }}>✓</span>
+                                        )}
+                                      </div>
+                                      {isUnlocked && (
+                                        <p className="font-mono text-xs" style={{ color: 'var(--text-2)' }}>{hint.hint_text}</p>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+
+                            {feedback && (
+                              <div className="rounded-lg p-3 mb-4 font-mono text-xs"
+                                style={{
+                                  background: feedback.ok ? 'rgba(16,185,129,0.08)' : 'rgba(240,82,82,0.08)',
+                                  color: feedback.ok ? '#10b981' : '#f05252',
+                                  border: feedback.ok ? '1px solid rgba(16,185,129,0.2)' : '1px solid rgba(240,82,82,0.2)',
+                                }}>
+                                {feedback.msg}
+                              </div>
+                            )}
+
+                            <div className="flex gap-3">
+                              <input
+                                value={answer}
+                                onChange={e => setAnswer(e.target.value)}
+                                onKeyDown={e => e.key === 'Enter' && handleSubmitFlag(ch.id, answer, ch.points)}
+                                placeholder="seclab{...}"
+                                className="input flex-1"
+                                disabled={submitting}
+                              />
+                              <button onClick={() => handleSubmitFlag(ch.id, answer, ch.points)}
+                                disabled={submitting}
+                                className="btn-primary">
+                                {submitting ? 'Checking...' : 'Submit'}
+                              </button>
+                            </div>
                           </div>
                         )}
-
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="font-mono text-[10px] px-2 py-1 rounded-md font-medium"
-                            style={{ background: d.bg, color: d.text }}>
-                            {ch.difficulty}
-                          </span>
-                          <span className="font-mono text-[10px]" style={{ color: 'var(--text-3)' }}>{ch.category}</span>
-                          <span className="font-mono text-[10px] ml-auto" style={{ color: '#d97706' }}>{ch.points} pts</span>
-                        </div>
-
-                        <h3 className="font-display font-semibold text-base mb-1" style={{ color: 'var(--text)' }}>{ch.title}</h3>
-                        <p className="text-sm mb-3" style={{ color: 'var(--text-2)' }}>{ch.description}</p>
-
-                        <div className="flex items-center justify-between">
-                          <span className="font-mono text-xs" style={{ color: 'var(--text-3)' }}>
-                            {solveCounts[ch.id] || 0} solves
-                          </span>
-                          <span className="font-mono text-xs" style={{ color: isSolved ? '#059669' : '#0891b2' }}>
-                            {isSolved ? 'Solved ✓' : 'Solve →'}
-                          </span>
-                        </div>
                       </div>
                     );
                   })}
@@ -320,248 +405,57 @@ export default function CTFPage() {
         )}
 
         {tab === 'leaderboard' && (
-          <div className="max-w-2xl">
-            <div className="flex items-center justify-between mb-6">
-              <p className="font-mono text-sm" style={{ color: 'var(--text-2)' }}>Top hackers by total points</p>
-              <button onClick={() => loadData(userId)}
-                className="font-mono text-xs px-3 py-1.5 rounded-md border transition-all"
-                style={{ borderColor: 'var(--border)', color: 'var(--text-3)' }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = '#0891b2'; e.currentTarget.style.color = '#0891b2'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-3)'; }}>
-                ↻ Refresh
-              </button>
-            </div>
-
-            {leaderboard.length > 0 ? (
-              <div className="mb-6">
-                <div className="flex items-end justify-center gap-3 md:gap-6 px-4">
-                  {/* 2nd */}
-                  {leaderboard[1] && (() => {
-                    const entry = leaderboard[1];
-                    const isMe = entry.username === getUsername();
-                    return (
-                      <div className="flex flex-col items-center gap-2 flex-1 max-w-[130px]">
-                        <div className="text-3xl">🥈</div>
-                        <div className="w-full rounded-xl p-4 flex flex-col items-center gap-1"
-                          style={{ background: 'var(--surface)', border: '1.5px solid var(--border-2)' }}>
-                          <span className="font-display font-semibold text-sm truncate w-full text-center"
-                            style={{ color: isMe ? '#0891b2' : 'var(--text)' }}>
-                            {entry.username}{isMe && <span style={{ color: '#d97706' }}> (you)</span>}
-                          </span>
-                          <span className="font-mono text-xl font-bold" style={{ color: '#94a3b8' }}>
-                            {entry.points.toLocaleString()}
-                          </span>
-                          <span className="font-mono text-xs" style={{ color: 'var(--text-3)' }}>{entry.solves_count || 0} solves</span>
-                        </div>
-                        <div className="w-full rounded-t-xl flex items-center justify-center py-2"
-                          style={{ background: 'var(--bg-3)', border: '1.5px solid var(--border-2)', borderBottom: 'none', height: '48px' }}>
-                          <span className="font-mono text-xs font-bold" style={{ color: '#94a3b8' }}>#2</span>
-                        </div>
-                      </div>
-                    );
-                  })()}
-
-                  {/* 1st */}
-                  {leaderboard[0] && (() => {
-                    const entry = leaderboard[0];
-                    const isMe = entry.username === getUsername();
-                    return (
-                      <div className="flex flex-col items-center gap-2 flex-1 max-w-[150px]">
-                        <div className="text-4xl">🥇</div>
-                        <div className="w-full rounded-xl p-5 flex flex-col items-center gap-1"
-                          style={{ background: 'var(--surface)', border: '1.5px solid #fcd34d', boxShadow: '0 4px 12px rgba(217,119,6,0.1)' }}>
-                          <span className="font-display font-semibold text-base truncate w-full text-center"
-                            style={{ color: isMe ? '#0891b2' : 'var(--text)' }}>
-                            {entry.username}{isMe && <span style={{ color: '#d97706' }}> (you)</span>}
-                          </span>
-                          <span className="font-mono text-3xl font-bold" style={{ color: '#d97706' }}>
-                            {entry.points.toLocaleString()}
-                          </span>
-                          <span className="font-mono text-xs" style={{ color: 'var(--text-3)' }}>{entry.solves_count || 0} solves</span>
-                        </div>
-                        <div className="w-full rounded-t-xl flex items-center justify-center py-3"
-                          style={{ background: '#fef3c7', border: '1.5px solid #fcd34d', borderBottom: 'none', height: '72px' }}>
-                          <span className="font-mono text-sm font-bold" style={{ color: '#d97706' }}>#1</span>
-                        </div>
-                      </div>
-                    );
-                  })()}
-
-                  {/* 3rd */}
-                  {leaderboard[2] && (() => {
-                    const entry = leaderboard[2];
-                    const isMe = entry.username === getUsername();
-                    return (
-                      <div className="flex flex-col items-center gap-2 flex-1 max-w-[130px]">
-                        <div className="text-3xl">🥉</div>
-                        <div className="w-full rounded-xl p-4 flex flex-col items-center gap-1"
-                          style={{ background: 'var(--surface)', border: '1.5px solid var(--border-2)' }}>
-                          <span className="font-display font-semibold text-sm truncate w-full text-center"
-                            style={{ color: isMe ? '#0891b2' : 'var(--text)' }}>
-                            {entry.username}{isMe && <span style={{ color: '#d97706' }}> (you)</span>}
-                          </span>
-                          <span className="font-mono text-xl font-bold" style={{ color: '#cd7f32' }}>
-                            {entry.points.toLocaleString()}
-                          </span>
-                          <span className="font-mono text-xs" style={{ color: 'var(--text-3)' }}>{entry.solves_count || 0} solves</span>
-                        </div>
-                        <div className="w-full rounded-t-xl flex items-center justify-center py-2"
-                          style={{ background: 'var(--bg-3)', border: '1.5px solid var(--border-2)', borderBottom: 'none', height: '48px' }}>
-                          <span className="font-mono text-xs font-bold" style={{ color: '#cd7f32' }}>#3</span>
-                        </div>
-                      </div>
-                    );
-                  })()}
-                </div>
+          <div>
+            <div className="card rounded-2xl overflow-hidden">
+              {/* Leaderboard header */}
+              <div className="grid grid-cols-3 px-5 py-3" style={{ borderBottom: '1px solid var(--border)' }}>
+                {['Rank', 'Player', 'Points'].map((h, i) => (
+                  <div key={h} className="font-mono text-[10px] uppercase tracking-widest" style={{ color: 'var(--text-4)' }}>{h}</div>
+                ))}
               </div>
-            ) : (
-              <div className="rounded-xl p-8 text-center font-mono text-sm mb-8"
-                style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-3)' }}>
-                No submissions yet. Be the first!
+              {/* My entry */}
+              <div className="grid grid-cols-3 px-5 py-3.5" style={{ borderBottom: '1px solid var(--border)', background: 'rgba(0,201,167,0.04)' }}>
+                <div className="font-mono text-sm" style={{ color: '#00c9a7' }}>#{leaderboard.findIndex(p => p.username === getUsername()) + 1 || '—'}</div>
+                <div className="font-mono text-sm font-semibold" style={{ color: '#00c9a7' }}>{getUsername()} (you)</div>
+                <div className="font-mono text-sm font-semibold" style={{ color: '#00c9a7' }}>{userPoints}</div>
               </div>
-            )}
-
-            {leaderboard.length > 3 && (
-              <div className="rounded-xl overflow-hidden" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
-                {leaderboard.slice(3).map((entry: any, i: number) => {
-                  const isMe = entry.username === getUsername();
-                  return (
-                    <div key={i}
-                      className="flex items-center gap-4 px-6 py-3"
-                      style={{ borderBottom: i < leaderboard.slice(3).length - 1 ? '1px solid var(--border)' : undefined }}>
-                      <span className="font-mono font-bold text-sm w-5" style={{ color: 'var(--text-3)' }}>#{i + 4}</span>
-                      <span className="font-mono text-sm flex-1"
-                        style={{ color: isMe ? '#0891b2' : 'var(--text)', fontWeight: isMe ? 600 : 400 }}>
-                        {entry.username} {isMe ? '(you)' : ''}
-                      </span>
-                      <span className="font-mono text-xs" style={{ color: 'var(--text-3)' }}>{entry.solves_count || 0} solves</span>
-                      <span className="font-mono text-sm font-bold" style={{ color: '#059669' }}>
-                        {entry.points.toLocaleString()}
-                      </span>
+              {/* Others */}
+              {leaderboard.slice(0, 20).map((entry, i) => {
+                const isMe = entry.username === getUsername();
+                return (
+                  <div key={i} className="grid grid-cols-3 px-5 py-3.5" style={{ borderBottom: '1px solid var(--border)', background: isMe ? 'rgba(0,201,167,0.04)' : 'transparent' }}>
+                    <div className="flex items-center gap-2">
+                      {i < 3 ? (
+                        <span className="font-mono text-sm" style={{ color: ['#f0a500','#a0a0b0','#cd7f32'][i] }}>
+                          #{i + 1}
+                        </span>
+                      ) : (
+                        <span className="font-mono text-xs" style={{ color: 'var(--text-4)' }}>#{i + 1}</span>
+                      )}
                     </div>
-                  );
-                })}
-              </div>
-            )}
+                    <div className="font-mono text-sm" style={{ color: isMe ? '#00c9a7' : 'var(--text-2)' }}>{entry.username}</div>
+                    <div className="font-mono text-sm font-semibold" style={{ color: isMe ? '#00c9a7' : 'var(--text-3)' }}>{entry.points}</div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>
 
-      {/* MODAL */}
-      {selected && (() => {
-        const ch = challenges.find(c => c.id === selected);
-        if (!ch) return null;
-        const d = DIFFICULTY[ch.difficulty as keyof typeof DIFFICULTY] || DIFFICULTY.Easy;
-        return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            style={{ background: 'rgba(15,23,42,0.4)', backdropFilter: 'blur(4px)' }}
-            onClick={(e) => e.target === e.currentTarget && setSelected(null)}>
-            <div className="w-full max-w-lg rounded-2xl p-6 md:p-8"
-              style={{ background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: '0 24px 64px rgba(15,23,42,0.12)' }}>
-              <div className="flex items-center justify-between mb-5">
-                <div>
-                  <h2 className="font-display font-bold text-lg" style={{ color: 'var(--text)' }}>{ch.title}</h2>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="font-mono text-[10px] px-2 py-1 rounded-md" style={{ background: d.bg, color: d.text }}>{ch.difficulty}</span>
-                    <span className="font-mono text-[10px]" style={{ color: '#d97706' }}>{ch.points} pts</span>
-                  </div>
-                </div>
-                <button onClick={() => setSelected(null)}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-                  style={{ background: 'var(--bg-3)', color: 'var(--text-2)' }}>
-                  ✕
-                </button>
-              </div>
-
-              <p className="text-sm mb-5" style={{ color: 'var(--text-2)' }}>{ch.description}</p>
-
-              {hints.length > 0 && (
-                <div className="space-y-2 mb-5">
-                  {hints.map((hint, i) => {
-                    const isUnlocked = unlockedHints.includes(hint.id);
-                    const cost = hint.unlock_cost ?? 50;
-                    return (
-                      <div key={hint.id}
-                        className="rounded-lg p-4"
-                        style={{
-                          background: isUnlocked ? '#d1fae5' : 'var(--bg-3)',
-                          border: isUnlocked ? '1px solid #6ee7b7' : '1px solid var(--border)',
-                        }}>
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="font-mono text-xs font-semibold" style={{ color: 'var(--text-2)' }}>
-                            Hint {i + 1}
-                          </span>
-                          {!isUnlocked && (
-                            <button
-                              onClick={() => handleUnlockHint(hint.id, cost)}
-                              disabled={userPoints < cost}
-                              className="font-mono text-[10px] px-3 py-1 rounded-md border"
-                              style={{
-                                borderColor: userPoints >= cost ? '#d97706' : 'var(--border)',
-                                color: userPoints >= cost ? '#d97706' : 'var(--text-3)',
-                                background: userPoints >= cost ? '#fef3c7' : 'transparent',
-                                cursor: userPoints >= cost ? 'pointer' : 'not-allowed',
-                              }}>
-                              Unlock — {cost} pts
-                            </button>
-                          )}
-                          {isUnlocked && (
-                            <span className="font-mono text-[10px] px-2 py-0.5 rounded" style={{ background: '#d1fae5', color: '#059669' }}>✓</span>
-                          )}
-                        </div>
-                        {isUnlocked && (
-                          <p className="font-mono text-xs" style={{ color: '#065f46' }}>{hint.hint_text}</p>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {feedback && (
-                <div className="rounded-lg p-3 mb-4 font-mono text-xs"
-                  style={{
-                    background: feedback.ok ? '#d1fae5' : '#fee2e2',
-                    color: feedback.ok ? '#059669' : '#dc2626',
-                    border: feedback.ok ? '1px solid #6ee7b7' : '1px solid #fca5a5',
-                  }}>
-                  {feedback.msg}
-                </div>
-              )}
-
-              <div className="flex gap-3">
-                <input
-                  value={answer}
-                  onChange={e => setAnswer(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleSubmitFlag(ch.id, answer, ch.points)}
-                  placeholder="seclab{...}"
-                  className="input flex-1"
-                  style={{ background: 'var(--bg)' }}
-                  disabled={submitting}
-                />
-                <button onClick={() => handleSubmitFlag(ch.id, answer, ch.points)}
-                  disabled={submitting}
-                  className="btn-primary">
-                  {submitting ? 'Checking...' : 'Submit'}
-                </button>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
-
       {/* FOOTER */}
-      <footer className="px-6 py-10" style={{ background: 'var(--bg-2)', borderTop: '1px solid var(--border)' }}>
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <footer className="px-6 py-10" style={{ background: 'var(--surface)', borderTop: '1px solid var(--border)' }}>
+        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: '#0891b2' }}>
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                <path d="M8 1L15 4.5V11.5L8 15L1 11.5V4.5L8 1Z" stroke="white" strokeWidth="1.5"/>
-                <path d="M5.5 8L7 9.5L10.5 6" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center"
+              style={{ background: 'linear-gradient(135deg, #00c9a7 0%, #00e8c6 100%)' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2L21 7V17L12 22L3 17V7L12 2Z" stroke="black" strokeWidth="1.5"/>
+                <path d="M8 12L10.5 14.5L16 9" stroke="black" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
             </div>
             <span className="font-display font-bold text-xs" style={{ color: 'var(--text)' }}>
-              Sec<span style={{ color: '#0891b2' }}>Lab</span><span style={{ color: '#d97706' }}>.ng</span>
+              Sec<span style={{ color: '#00c9a7' }}>Lab</span><span style={{ color: '#f0a500' }}>.ng</span>
             </span>
           </div>
           <p className="font-mono text-xs" style={{ color: 'var(--text-3)' }}>© 2026 SecLab Nigeria · Built in Nigeria</p>
