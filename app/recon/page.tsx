@@ -71,7 +71,11 @@ export default function ReconPage() {
             </span>
           </a>
           <div className="flex items-center gap-1">
-            {[['CTF', '/ctf'], ['Courses', '/courses'], ['Recon', '/recon', true]].map(([label, href, active]) => (
+            {([
+              { label: 'CTF', href: '/ctf', active: false },
+              { label: 'Courses', href: '/courses', active: false },
+              { label: 'Recon', href: '/recon', active: true },
+            ]).map(({ label, href, active }) => (
               <a key={label} href={href}
                 className="font-mono text-xs px-4 py-2 rounded-lg transition-all"
                 style={{

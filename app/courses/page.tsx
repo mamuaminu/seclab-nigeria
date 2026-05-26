@@ -216,7 +216,11 @@ export default function CoursesPage() {
             </span>
           </a>
           <div className="flex items-center gap-1">
-            {[['CTF', '/ctf'], ['Courses', '/courses', true], ['Recon', '/recon']].map(([label, href, active]) => (
+            {([
+              { label: 'CTF', href: '/ctf', active: false },
+              { label: 'Courses', href: '/courses', active: true },
+              { label: 'Recon', href: '/recon', active: false },
+            ]).map(({ label, href, active }) => (
               <a key={label} href={href}
                 className="font-mono text-xs px-4 py-2 rounded-lg transition-all"
                 style={{
@@ -232,7 +236,7 @@ export default function CoursesPage() {
       </nav>
 
       {/* HERO SECTION */}
-      <section className="pt-32 pb-10 px-6 relative overflow-hidden">
+      <section className="pt-20 md:pt-32 pb-10 px-6 relative overflow-hidden">
         {/* Ambient glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] pointer-events-none"
           style={{
