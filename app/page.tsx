@@ -11,7 +11,7 @@ const PRODUCTS = [
     cta: 'Start Solving',
     href: '/ctf',
     color: '#00c9a7',
-    stats: ['6 Live Challenges', 'Weekly competitions', 'Community writeups'],
+    stats: ['18 Live Challenges', 'Weekly competitions', 'Community writeups'],
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
         <path d="M12 2L21 7V17L12 22L3 17V7L12 2Z" stroke="currentColor" strokeWidth="1.5"/>
@@ -312,7 +312,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
-              ['6', 'Live Challenges'],
+              ['18', 'Live Challenges'],
               ['7', 'Free Courses'],
               ['5', 'Scans per Day'],
               ['100%', 'Free Access'],

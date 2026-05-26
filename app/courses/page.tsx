@@ -248,7 +248,7 @@ export default function CoursesPage() {
             Learn by <span style={{ color: 'var(--amber)' }}>breaking</span> things
           </h1>
           <p className="font-mono text-sm" style={{ color: 'var(--text-2)' }}>
-            4 courses · Real content · Progress syncs across devices
+            7 courses · Real content · Progress syncs across devices
           </p>
           {/* Gradient line */}
           <div className="mt-6 h-px w-full" style={{
