@@ -123,11 +123,23 @@ export async function getUserSolvedChallenges(userId: string): Promise<number[]>
 export async function getUserProfile(userId: string) {
   const { data, error } = await supabase
     .from('profiles')
-    .select('username, points, solves_count')
+    .select('username, points, solves_count, is_pro, pro_variant_id')
     .eq('id', userId)
     .single();
   if (error && error.code !== 'PGRST116') throw error;
   return data;
+}
+
+export async function fetchPrivateChallenges() {
+  // Fetches premium challenges only visible to Pro/Elite subscribers
+  const { data, error } = await supabase
+    .from('challenges')
+    .select('id, title, description, category, difficulty, points, hint, tags, created_at, is_private')
+    .eq('active', true)
+    .eq('is_private', true)
+    .order('points', { ascending: true });
+  if (error) throw error;
+  return data || [];
 }
 
 export async function upsertProfile(userId: string, username: string) {

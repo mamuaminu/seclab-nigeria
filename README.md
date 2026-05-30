@@ -1,129 +1,180 @@
-# SecLab Nigeria
+# SecLab Nigeria — CTF Platform
 
-> Nigeria's Premier Cybersecurity Lab — interactive demos, CTF writeups, and open-source security tools.
+> **Revenue Status: $15/mo Pro · $40/mo Elite · 20 Private Challenges deployed**
 
-[Live Site](https://mamuaminu.github.io/seclab-nigeria) · [mamuaminu](https://github.com/mamuaminu)
-
----
-
-## What is this?
-
-SecLab Nigeria is a personal cybersecurity portal built to showcase real skills through live, working demos. It's not a blog or a static portfolio — every tool on the site actually runs in your browser. The goal: make recruiters and clients stop scrolling, click something, and come away knowing what you can actually do.
+A production-grade cybersecurity CTF platform built for Nigerian security talent. Built by [Muhammad Aminu Musa](https://github.com/mamuaminu).
 
 ---
 
-## Live Tools
+## Products
 
-### 🔓 XSS Simulator
-A sandboxed environment where you can type or paste XSS payloads and see them execute in real time. Includes quick-payload buttons for common attack patterns with explanations of how each one works. Completely client-side — nothing is sent to any server.
-
-### 🔐 Cipher Encoder
-Encrypt and decrypt classic ciphers:
-- **Caesar** — shift any alphabet character by N positions (configurable 1–25)
-- **ROT13** — standard rotation cipher
-- **Base64** — encode/decode binary-to-text
-- **Reverse** — character reversal cipher
-
-All processing happens in the browser.
-
-### #️⃣ Hash Identifier
-Paste any cryptographic hash and get instant analysis:
-- Hash type detection (MD5, SHA-1, SHA-256, SHA-384, SHA-512, Bcrypt, etc.)
-- Strength assessment — weak, moderate, or strong
-- What the hash is typically used for
-- Common length reference table
+| Product | URL | Revenue Model |
+|---------|-----|--------------|
+| **SecLab CTF** | [seclab-nigeria.vercel.app/ctf](https://seclab-nigeria.vercel.app/ctf) | LemonSqueezy ($15 Pro / $40 Elite) |
+| **SecLab Courses** | [seclab-nigeria.vercel.app/courses](https://seclab-nigeria.vercel.app/courses) | Coming soon |
+| **SecLab Recon SaaS** | [seclab-nigeria.vercel.app/recon](https://seclab-nigeria.vercel.app/recon) | Free tier + $25 Pro |
 
 ---
 
-## CTF Writeups
+## Quick Start
 
-Detailed walkthroughs of challenges solved on platforms including HackTheBox, PortSwigger Academy, CTFlearn, and NepFest. Each writeup covers:
+```bash
+# Install dependencies
+npm install
 
-- The challenge and its category
-- Step-by-step exploitation process
-- Key commands and tooling used
-- What was learned
+# Copy environment config
+cp .env.example .env.local
+# Fill in SUPABASE_SERVICE_ROLE_KEY + LemonSqueezy keys
 
-Browse the [Writeups section](#) on the live site.
+# Seed private CTF challenges
+node scripts/seed-private-challenges.js
 
----
-
-## Project Showcase
-
-Open-source projects featured on the site:
-
-| Project | Description | Stack |
-|---|---|---|
-| **malware_tool** | Static malware analysis CLI with VT lookup, PE parsing, YARA scanning | Python, Flask, SQLite |
-| **Hawkeye Intelligence** | OSINT platform for West African incidents, fleet tracking, market data | React, Node.js, PostgreSQL, Docker |
-| **Hayaku Express** | WhatsApp delivery bot with WebSocket rider tracking and Paystack | Node.js, Twilio, WebSocket, PM2 |
-| **PostForge AI** | Multi-platform social media automation with GPT-4o | FastAPI, Celery, Redis, Docker |
-
-All repos: [github.com/mamuaminu](https://github.com/mamuaminu)
+# Run dev server
+npm run dev
+```
 
 ---
 
 ## Tech Stack
 
-- **Framework:** Next.js 14 (App Router)
-- **Styling:** Tailwind CSS
-- **Language:** TypeScript
-- **Deployment:** GitHub Pages (CI via GitHub Actions)
-- **Hosting:** Free — $0 total cost
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16 (App Router) |
+| Database | Supabase (PostgreSQL + Auth + RLS) |
+| Payments | LemonSqueezy (subscription billing) |
+| Styling | Tailwind CSS (custom design system) |
+| Hosting | Vercel (with server-side API routes) |
 
 ---
 
-## Getting Started
+## Revenue Architecture
 
-### Run locally
+### How Payment Flow Works
 
-```bash
-# Clone the repo
-git clone https://github.com/mamuaminu/seclab-nigeria.git
-cd seclab-nigeria
-
-# Install dependencies
-npm install
-
-# Start dev server
-npm run dev
-# Open http://localhost:3000
+```
+User clicks "Upgrade to Pro" on CTF page
+        ↓
+ProGate component → /api/checkout route
+        ↓
+Server-side: LemonSqueezy REST API creates checkout
+        ↓
+user_id passed as custom_data in checkout
+        ↓
+User pays on LemonSqueezy hosted page
+        ↓
+LemonSqueezy POSTs to /api/webhooks/lemonsqueezy
+        ↓
+Webhook: supabase.profiles.is_pro = true
+        ↓
+User sees private challenges next page load
 ```
 
-### Build for production
+### Setting Up LemonSqueezy Products
 
-```bash
-npm run build
-npm start
-```
-
-### Deploy to GitHub Pages
-
-The repo includes a GitHub Actions workflow that deploys the `out/` directory on every push to `main`. Just enable GitHub Pages in your repo settings and point it to the `gh-pages` branch.
+1. Create account at [app.lemonsqueezy.com](https://app.lemonsqueezy.com)
+2. Create **Pro Access** product ($15/month, recurring)
+3. Create **Elite Access** product ($40/month, recurring)
+4. Get Variant IDs from each product's URL: `/store/YOUR-STORE/checkout/buy/VARIANT-ID`
+5. Add to `.env.local`:
+   ```
+   LEMONSQUEEZY_API_KEY=...
+   LEMONSQUEEZY_STORE_ID=...
+   LEMONSQUEEZY_WEBHOOK_SECRET=...
+   NEXT_PUBLIC_LEMON_SQUEEZY_PRO_VARIANT_ID=...
+   NEXT_PUBLIC_LEMON_SQUEEZY_ELITE_VARIANT_ID=...
+   ```
+6. Register webhook: `https://your-domain.com/api/webhooks/lemonsqueezy`
+   - Events: `subscription_created`, `subscription_updated`, `subscription_cancelled`, `subscription_expired`
 
 ---
 
-## Why this matters
+## Database Schema
 
-Most security portfolios list certifications and tools. This one demonstrates competence by letting visitors _use_ the tools directly. A recruiter can click the XSS simulator, try a payload, and see exactly how XSS works — in 30 seconds. That sticks.
+### challenges
+| Column | Type | Notes |
+|--------|------|-------|
+| id | serial | PK |
+| title | text | Challenge name |
+| description | text | Full description |
+| category | text | Web, Crypto, Network, etc. |
+| difficulty | text | Easy, Medium, Hard, Insane |
+| points | integer | Score value |
+| hint | text | Free hint shown on challenge |
+| flag_hash | text | SHA256 of the flag |
+| tags | jsonb | Array of tag strings |
+| is_private | boolean | Only visible to Pro users |
+| active | boolean | Show/hide challenge |
 
-Built by **Muhammad Aminu Musa** — ISC2 Certified in Cybersecurity, CISCO Pentest certified, 3+ years IT consulting. Nigerian developer building things that work.
+### ctf_hints
+| Column | Type | Notes |
+|--------|------|-------|
+| id | serial | PK |
+| challenge_id | integer | FK → challenges |
+| hint_text | text | Hint content |
+| hint_order | integer | Display order |
+| unlock_cost | integer | Points to unlock |
+
+### profiles
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid | PK (also user_id from localStorage) |
+| username | text | Display name |
+| points | integer | Total CTF points |
+| solves_count | integer | Total solves |
+| is_pro | boolean | Pro subscription active |
+| pro_variant_id | text | LS variant purchased |
+
+---
+
+## Scripts
+
+### `scripts/seed-private-challenges.js`
+Seeds 20 premium challenges (Hard + Insane difficulty) into the database.
+Run this when setting up or resetting the private challenge pool.
+
+```bash
+SUPABASE_SERVICE_ROLE_KEY=xxx node scripts/seed-private-challenges.js
+```
+
+---
+
+## Deployment
+
+### Vercel (Recommended)
+
+```bash
+npm install -g vercel
+vercel
+```
+
+Add all `.env.local` variables in Vercel Dashboard → Settings → Environment Variables.
+
+**Important:** Next.js API routes require server-side rendering. Do NOT use `next export`. GitHub Pages is not supported for this project.
+
+### Railway
+
+```bash
+railway login
+railway init
+railway up
+```
+
+---
+
+## Features
+
+- [x] Free CTF challenges (public)
+- [x] Pro/Elite paid tiers via LemonSqueezy
+- [x] Private challenge vault (20 challenges)
+- [x] Points system with leaderboard
+- [x] Hint system with point unlock
+- [x] Daily challenge rotation
+- [x] Webhook-driven subscription activation
+- [x] Mobile-responsive design
+- [x] Dark mode design system
 
 ---
 
 ## License
 
-MIT — use it, learn from it, improve it.
-
----
-
-_SecLab Nigeria · Built in Nigeria, deployed to the world._
-
-## Deployment Status
-
-✅ Build: passing
-🔄 Deploy: triggered on push to `main` via GitHub Actions
-
-_Last updated: 2026-05-23_
-
-Live at: https://mamuaminu.github.io/seclab-nigeria/
+Proprietary — All rights reserved Muhammad Aminu Musa.

@@ -75,11 +75,14 @@ export default function ProGate({
         ? process.env.NEXT_PUBLIC_LEMON_SQUEEZY_PRO_VARIANT_ID || 'pro_variant_id'
         : process.env.NEXT_PUBLIC_LEMON_SQUEEZY_ELITE_VARIANT_ID || 'elite_variant_id';
 
+      // Get userId from localStorage to pass to webhook
+      const userId = typeof window !== 'undefined' ? localStorage.getItem('seclab_user_id') || '' : '';
+
       // Call checkout API route
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ variantId, projectName: 'SecLab Nigeria Pro' }),
+        body: JSON.stringify({ variantId, projectName: 'SecLab Nigeria Pro', userId }),
       });
       const data = await res.json();
       if (data.checkoutUrl) {

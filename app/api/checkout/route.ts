@@ -51,10 +51,33 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { variantId, projectName, email, name } = body;
+    const { variantId, projectName, email, name, userId } = body;
 
     if (!variantId) {
       return NextResponse.json({ error: 'variantId is required' }, { status: 400 });
+    }
+
+    // Build checkout attributes — include user_id in custom_data for webhook
+    const attributes: Record<string, unknown> = {
+      checkout_data: {
+        email: email || undefined,
+        name: name || undefined,
+      },
+      product_options: {
+        name: projectName || 'SecLab Nigeria Pro',
+        description: 'SecLab Nigeria CTF Pro Access',
+      },
+      checkout_options: {
+        embed: false,
+        media: true,
+        logo: true,
+      },
+      expires_at: null,
+    };
+
+    // Pass user_id so webhook can grant pro access
+    if (userId) {
+      (attributes as any).custom_data = { user_id: userId };
     }
 
     // Create checkout via Lemon Squeezy REST API
@@ -65,22 +88,7 @@ export async function POST(request: NextRequest) {
       {
         data: {
           type: 'checkouts',
-          attributes: {
-            checkout_data: {
-              email: email || undefined,
-              name: name || undefined,
-            },
-            product_options: {
-              name: projectName || 'SecLab Nigeria Pro',
-              description: 'SecLab Nigeria CTF Pro Access',
-            },
-            checkout_options: {
-              embed: false,
-              media: true,
-              logo: true,
-            },
-            expires_at: null,
-          },
+          attributes,
         },
       }
     );
