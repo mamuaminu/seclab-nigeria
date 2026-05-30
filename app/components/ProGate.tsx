@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 /**
  * ProGate — SecLab Nigeria Pro Upgrade Modal
- * Shows lock icons on premium content, links to LemonSqueezy checkout.
+ * Uses Paystack for Nigerian Naira payments.
  * Variants:
  *   - "compact" — small lock badge that opens modal
  *   - "card" — full feature card with CTA
@@ -14,17 +14,15 @@ interface ProGateProps {
   variant?: 'compact' | 'card' | 'banner';
   title?: string;
   description?: string;
-  feature?: string; // e.g. "private challenges", "advanced hints"
+  feature?: string;
   tier?: 'pro' | 'elite';
   onDismiss?: () => void;
 }
 
-const PRO_URL = process.env.NEXT_PUBLIC_PRO_CHECKOUT_URL || 'https://seclab-nigeria.lemonsqueezy.com';
-
 const TIERS = {
   pro: {
     name: 'Pro',
-    price: '$15',
+    price: '₦10,000',
     period: '/mo',
     color: '#00c9a7',
     bg: 'rgba(0,201,167,0.06)',
@@ -39,7 +37,7 @@ const TIERS = {
   },
   elite: {
     name: 'Elite',
-    price: '$40',
+    price: '₦25,000',
     period: '/mo',
     color: '#f0a500',
     bg: 'rgba(240,165,0,0.06)',
@@ -65,34 +63,51 @@ export default function ProGate({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedTier, setSelectedTier] = useState<'pro' | 'elite'>('pro');
+  const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
 
   const t = TIERS[tier];
 
+  function validateEmail(email: string) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
   async function handleCheckout() {
+    // Get email from user if not set
+    const userEmail = email || (typeof window !== 'undefined' ? localStorage.getItem('seclab_user_email') || '' : '');
+    if (!validateEmail(userEmail)) {
+      setEmailError('Please enter a valid email address');
+      return;
+    }
+
     setLoading(true);
+    setEmailError('');
     try {
-      const variantId = tier === 'pro'
-        ? process.env.NEXT_PUBLIC_LEMON_SQUEEZY_PRO_VARIANT_ID || 'pro_variant_id'
-        : process.env.NEXT_PUBLIC_LEMON_SQUEEZY_ELITE_VARIANT_ID || 'elite_variant_id';
-
-      // Get userId from localStorage to pass to webhook
       const userId = typeof window !== 'undefined' ? localStorage.getItem('seclab_user_id') || '' : '';
+      const username = typeof window !== 'undefined' ? localStorage.getItem('seclab_username') || '' : '';
 
-      // Call checkout API route
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ variantId, projectName: 'SecLab Nigeria Pro', userId }),
+        body: JSON.stringify({
+          tierName: selectedTier === 'pro' ? 'Pro' : 'Elite',
+          email: userEmail,
+          name: username,
+          userId,
+        }),
       });
       const data = await res.json();
       if (data.checkoutUrl) {
-        window.open(data.checkoutUrl, '_blank');
+        // Save email for webhook correlation
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('seclab_user_email', userEmail);
+        }
+        window.location.href = data.checkoutUrl;
       } else {
-        // Fallback to Gumroad / direct link
-        window.open(PRO_URL, '_blank');
+        alert(data.error || 'Failed to create checkout. Please try again.');
       }
     } catch {
-      window.open(PRO_URL, '_blank');
+      alert('Failed to create checkout. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -129,7 +144,7 @@ export default function ProGate({
             Upgrade for {t.price}{t.period}
           </button>
         </div>
-        {open && <UpgradeModal open={open} onClose={() => setOpen(false)} selectedTier={selectedTier} onSelectTier={setSelectedTier} onCheckout={handleCheckout} loading={loading} />}
+        {open && <UpgradeModal open={open} onClose={() => setOpen(false)} selectedTier={selectedTier} onSelectTier={setSelectedTier} onCheckout={handleCheckout} loading={loading} email={email} setEmail={setEmail} emailError={emailError} setEmailError={setEmailError} />}
       </div>
     );
   }
@@ -137,7 +152,7 @@ export default function ProGate({
   if (variant === 'card') {
     return (
       <>
-        <div className="card p-6 rounded-2xl text-center"
+<div className="card p-6 rounded-2xl text-center"
           style={{ background: t.bg, border: `1px solid ${t.border}` }}>
           <div className="text-4xl mb-3">🔐</div>
           <h3 className="font-display font-bold text-lg mb-2" style={{ color: 'var(--text)' }}>
@@ -152,10 +167,10 @@ export default function ProGate({
             Unlock Pro — {t.price}{t.period}
           </button>
           <p className="font-mono text-[10px] mt-2" style={{ color: 'var(--text-4)' }}>
-            30-day money-back guarantee
+            Cancel anytime · Secure payment via Paystack
           </p>
         </div>
-        {open && <UpgradeModal open={open} onClose={() => setOpen(false)} selectedTier={selectedTier} onSelectTier={setSelectedTier} onCheckout={handleCheckout} loading={loading} />}
+        {open && <UpgradeModal open={open} onClose={() => setOpen(false)} selectedTier={selectedTier} onSelectTier={setSelectedTier} onCheckout={handleCheckout} loading={loading} email={email} setEmail={setEmail} emailError={emailError} setEmailError={setEmailError} />}
       </>
     );
   }
@@ -170,7 +185,7 @@ export default function ProGate({
         <span>🔒</span>
         <span>PRO</span>
       </button>
-      {open && <UpgradeModal open={open} onClose={() => setOpen(false)} selectedTier={selectedTier} onSelectTier={setSelectedTier} onCheckout={handleCheckout} loading={loading} />}
+      {open && <UpgradeModal open={open} onClose={() => setOpen(false)} selectedTier={selectedTier} onSelectTier={setSelectedTier} onCheckout={handleCheckout} loading={loading} email={email} setEmail={setEmail} emailError={emailError} setEmailError={setEmailError} />}
     </>
   );
 }
@@ -184,9 +199,13 @@ interface UpgradeModalProps {
   onSelectTier: (t: 'pro' | 'elite') => void;
   onCheckout: () => void;
   loading: boolean;
+  email: string;
+  setEmail: (e: string) => void;
+  emailError: string;
+  setEmailError: (e: string) => void;
 }
 
-function UpgradeModal({ open, onClose, selectedTier, onSelectTier, onCheckout, loading }: UpgradeModalProps) {
+function UpgradeModal({ open, onClose, selectedTier, onSelectTier, onCheckout, loading, email, setEmail, emailError, setEmailError }: UpgradeModalProps) {
   if (!open) return null;
 
   return (
@@ -199,7 +218,6 @@ function UpgradeModal({ open, onClose, selectedTier, onSelectTier, onCheckout, l
         className="w-full max-w-lg rounded-2xl p-6 relative"
         style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
 
-        {/* Close */}
         <button onClick={onClose} className="absolute top-4 right-4 font-mono text-sm"
           style={{ color: 'var(--text-3)' }}>✕</button>
 
@@ -210,7 +228,7 @@ function UpgradeModal({ open, onClose, selectedTier, onSelectTier, onCheckout, l
           </h2>
           <p className="font-mono text-sm" style={{ color: 'var(--text-3)' }}>
             Unlock the full SecLab Nigeria experience
-          </p>
+</p>
         </div>
 
         {/* Tier selector */}
@@ -226,7 +244,7 @@ function UpgradeModal({ open, onClose, selectedTier, onSelectTier, onCheckout, l
                   background: isSelected ? tier.bg : 'var(--surface-3)',
                   border: `2px solid ${isSelected ? tier.color : 'var(--border)'}`,
                 }}>
-                <div className="flex items-center justify-between mb-2">
+<div className="flex items-center justify-between mb-2">
                   <span className="font-display font-bold" style={{ color: isSelected ? tier.color : 'var(--text)' }}>
                     {tier.name}
                   </span>
@@ -243,6 +261,24 @@ function UpgradeModal({ open, onClose, selectedTier, onSelectTier, onCheckout, l
               </button>
             );
           })}
+        </div>
+
+        {/* Email input */}
+        <div className="mb-4">
+          <label className="font-mono text-[10px] uppercase tracking-widest block mb-1.5" style={{ color: 'var(--text-3)' }}>
+            Email for payment receipt
+          </label>
+          <input
+            type="email"
+            value={email}
+            onChange={e => { setEmail(e.target.value); setEmailError(''); }}
+            placeholder="you@example.com"
+            className="input w-full"
+            style={{ height: '44px' }}
+          />
+          {emailError && (
+            <p className="font-mono text-[10px] mt-1" style={{ color: '#f05252' }}>{emailError}</p>
+          )}
         </div>
 
         {/* CTA */}
@@ -262,15 +298,15 @@ function UpgradeModal({ open, onClose, selectedTier, onSelectTier, onCheckout, l
                 <path d="M8 1V4M8 12V15M1 8H4M12 8H15M3.05 3.05L5.28 5.28M10.72 10.72L12.95 12.95M3.05 12.95L5.28 10.72M10.72 5.28L12.95 3.05"
                   stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
-              Redirecting to checkout...
+              Redirecting to Paystack...
             </>
           ) : (
-            <>Upgrade to {TIERS[selectedTier].name} — {TIERS[selectedTier].price}/mo</>
+            <>Pay {TIERS[selectedTier].price}/mo with Paystack</>
           )}
         </button>
 
         <p className="text-center font-mono text-[10px] mt-3" style={{ color: 'var(--text-4)' }}>
-          🔒 Secured by LemonSqueezy · Cancel anytime · 30-day guarantee
+          🔒 Secured by Paystack · Cancel anytime · NGN payments
         </p>
       </div>
     </div>

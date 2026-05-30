@@ -624,8 +624,8 @@ export default function CTFPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                   {[
-                    { name: 'Pro', price: '$15/mo', color: '#00c9a7', features: ['50+ Private Challenges', 'Unlimited Hints', 'Private Leaderboard', 'Early Access to Labs'] },
-                    { name: 'Elite', price: '$40/mo', color: '#f0a500', features: ['All Pro Features', 'Exclusive Elite Challenges', 'Named Certificate', 'Private Discord'] },
+                    { name: 'Pro', price: '₦10,000/mo', color: '#00c9a7', features: ['50+ Private Challenges', 'Unlimited Hints', 'Private Leaderboard', 'Early Access to Labs'] },
+                    { name: 'Elite', price: '₦25,000/mo', color: '#f0a500', features: ['All Pro Features', 'Exclusive Elite Challenges', 'Named Certificate', 'Private Discord'] },
                   ].map(tier => (
                     <div key={tier.name} className="card p-6 rounded-2xl text-center"
                       style={{ background: `${tier.color}08`, border: `1px solid ${tier.color}33` }}>

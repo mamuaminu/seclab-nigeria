@@ -1,31 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
- * LemonSqueezy Checkout API — creates a hosted checkout URL
- * for SecLab Nigeria CTF tiers (Pro $15/mo, Elite $40/mo)
+ * Paystack Checkout API — creates a Paystack transaction for SecLab Nigeria CTF tiers
+ * Pro: ₦10,000/mo | Elite: ₦25,000/mo
  *
- * Uses Lemon Squeezy REST API directly via fetch (no SDK needed).
- * Works as a Next.js API route — not compatible with `output: 'export'`.
- * Deploy to Railway or Vercel for server-side rendering.
+ * Uses Paystack REST API directly via fetch.
  */
 
-const LEMONSQUEEZY_API_BASE = 'https://api.lemonsqueezy.com/v1';
+const PAYSTACK_API_BASE = 'https://api.paystack.co';
 
-async function lsRequest(
+async function paystackRequest(
   endpoint: string,
   method: string,
   apiKey: string,
   body?: unknown
 ): Promise<{ statusCode: number; data: unknown; error: unknown }> {
-  const url = `${LEMONSQUEEZY_API_BASE}${endpoint}`;
+  const url = `${PAYSTACK_API_BASE}${endpoint}`;
   const res = await fetch(url, {
     method,
     headers: {
       Authorization: `Bearer ${apiKey}`,
-      Accept: 'application/vnd.api+json',
-      'Content-Type': 'application/vnd.api+json',
+      'Content-Type': 'application/json',
     },
-    ...(body ? { body: JSON.stringify({ data: body }) } : {}),
+    ...(body ? { body: JSON.stringify(body) } : {}),
   });
 
   const data = await res.json();
@@ -34,79 +31,68 @@ async function lsRequest(
 
 export async function POST(request: NextRequest) {
   try {
-    const apiKey = process.env.LEMONSQUEEZY_API_KEY;
+    const apiKey = process.env.PAYSTACK_SECRET_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { error: 'LEMONSQUEEZY_API_KEY is not configured. Add it to Railway/Vercel env vars.' },
-        { status: 500 }
-      );
-    }
-
-    const storeId = process.env.LEMONSQUEEZY_STORE_ID;
-    if (!storeId) {
-      return NextResponse.json(
-        { error: 'LEMONSQUEEZY_STORE_ID is not configured.' },
+        { error: 'PAYSTACK_SECRET_KEY is not configured.' },
         { status: 500 }
       );
     }
 
     const body = await request.json();
-    const { variantId, projectName, email, name, userId } = body;
+    const { tierName, email, name, userId } = body;
 
-    if (!variantId) {
-      return NextResponse.json({ error: 'variantId is required' }, { status: 400 });
+    if (!tierName || !email) {
+      return NextResponse.json({ error: 'tierName and email are required' }, { status: 400 });
     }
 
-    // Build checkout attributes — include user_id in custom_data for webhook
-    const attributes: Record<string, unknown> = {
-      checkout_data: {
-        email: email || undefined,
-        name: name || undefined,
-      },
-      product_options: {
-        name: projectName || 'SecLab Nigeria Pro',
-        description: 'SecLab Nigeria CTF Pro Access',
-      },
-      checkout_options: {
-        embed: false,
-        media: true,
-        logo: true,
-      },
-      expires_at: null,
+    // Amounts in kobo (₦)
+    const tierAmounts: Record<string, number> = {
+      Pro: 1000000,    // ₦10,000
+      Elite: 2500000,  // ₦25,000
     };
 
-    // Pass user_id so webhook can grant pro access
-    if (userId) {
-      (attributes as any).custom_data = { user_id: userId };
+    const amount = tierAmounts[tierName];
+    if (!amount) {
+      return NextResponse.json({ error: 'Invalid tier. Use Pro or Elite.' }, { status: 400 });
     }
 
-    // Create checkout via Lemon Squeezy REST API
-    const result = await lsRequest(
-      `/checkouts/${storeId}/${variantId}`,
+    // Create Paystack transaction
+    const result = await paystackRequest(
+      '/transaction/initialize',
       'POST',
       apiKey,
       {
-        data: {
-          type: 'checkouts',
-          attributes,
+        email,
+        amount,
+        currency: 'NGN',
+        metadata: {
+          tierName,
+          userId,
+          name,
+          product_name: `SecLab Nigeria ${tierName} Access`,
         },
+        callback_url: `https://seclab-nigeria.vercel.app/ctf?payment=success&tier=${tierName}`,
       }
     );
 
-    if (result.statusCode !== 200 && result.statusCode !== 201) {
-      console.error('LemonSqueezy API error:', result);
+    if (result.statusCode !== 200) {
+      console.error('Paystack API error:', result);
       return NextResponse.json(
         { error: 'Failed to create checkout session. Please try again.' },
         { status: result.statusCode || 500 }
       );
     }
 
-    const checkoutUrl = (result.data as { data: { attributes: { url: string } } })?.data?.attributes?.url;
-    if (!checkoutUrl) {
+    const responseData = result.data as { status: boolean; data: { authorization_url: string; reference: string } };
+    if (!responseData.status || !responseData.data?.authorization_url) {
       return NextResponse.json({ error: 'No checkout URL returned' }, { status: 500 });
     }
 
-    return NextResponse.json({ checkoutUrl });
+    return NextResponse.json({
+      checkoutUrl: responseData.data.authorization_url,
+      reference: responseData.data.reference,
+    });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Internal server error';
     console.error('Checkout route error:', message);

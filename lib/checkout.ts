@@ -1,26 +1,20 @@
 /**
- * LemonSqueezy checkout URL builder for SecLab Nigeria CTF
- * Works with static GitHub Pages export — CTF buttons redirect to
- * Lemon Squeezy hosted checkout pages.
+ * Paystack checkout for SecLab Nigeria CTF tiers
+ * Pro: ₦10,000/mo | Elite: ₦25,000/mo
  *
  * SETUP:
- * 1. Create a LemonSqueezy store at https://app.lemonsqueezy.com
- * 2. Create products/variants for Pro ($15/mo) and Elite ($40/mo)
- * 3. Set variant IDs in .env.local (see .env.example)
- * 4. Deploy API route to Vercel or Railway (for server-side checkout creation)
- * 5. On GitHub Pages, CTF page buttons open Lemon Squeezy hosted checkout
+ * 1. Create Paystack account at https://paystack.com
+ * 2. Create products for Pro and Elite in dashboard
+ * 3. Set PAYSTACK_SECRET_KEY in .env.local
+ * 4. Set NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY for frontend
+ * 5. Register webhook: https://seclab-nigeria.vercel.app/api/webhooks/paystack
  */
 
 export const NEXT_PUBLIC_BASE_URL =
   process.env.NEXT_PUBLIC_BASE_URL || 'https://seclab-nigeria.vercel.app';
 
-// Variant IDs from Lemon Squeezy dashboard
-// Find them in: Store → Products → [Product] → Variants
-const PRO_VARIANT_ID = process.env.NEXT_PUBLIC_PRO_VARIANT_ID || '';
-const ELITE_VARIANT_ID = process.env.NEXT_PUBLIC_ELITE_VARIANT_ID || '';
-
-// Store slug from Lemon Squeezy store URL
-const STORE_SLUG = process.env.NEXT_PUBLIC_STORE_SLUG || 'seclab-nigeria';
+// Paystack public key (safe to expose)
+const PAYSTACK_PUBLIC_KEY = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || '';
 
 /**
  * Tier names matching the CTF page TIERS array
@@ -28,50 +22,33 @@ const STORE_SLUG = process.env.NEXT_PUBLIC_STORE_SLUG || 'seclab-nigeria';
 export type TierName = 'Free' | 'Pro' | 'Elite';
 
 /**
- * Build LemonSqueezy hosted checkout URL.
- * Lemon Squeezy hosted checkout handles payment flow entirely on their domain.
- * No webhook or server required — user is redirected to LS after payment.
+ * Open Paystack checkout via API call.
+ * Calls /api/checkout which creates a Paystack transaction and returns authorization_url.
  */
-export function buildCheckoutUrl(tierName: TierName): string {
-  const variantId = tierName === 'Pro' ? PRO_VARIANT_ID : ELITE_VARIANT_ID;
+export async function openCheckout(tierName: TierName, email: string, userId: string, name?: string): Promise<void> {
+  if (tierName === 'Free') return;
 
-  if (!variantId) {
-    // Not configured — link to the store page so user can see products
-    return `https://seclab-nigeria.lemonsqueezy.com`;
+  const baseUrl = NEXT_PUBLIC_BASE_URL;
+
+  const res = await fetch(`${baseUrl}/api/checkout`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tierName, email, name, userId }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok || !data.checkoutUrl) {
+    throw new Error(data.error || 'Failed to create checkout');
   }
 
-  return `https://seclab-nigeria.lemonsqueezy.com/checkout/buy/${variantId}`;
+  // Redirect to Paystack hosted checkout
+  window.location.href = data.checkoutUrl;
 }
 
 /**
- * Redirect to Lemon Squeezy hosted checkout (same tab).
- * Works on static GitHub Pages — no API call needed.
+ * Check if Paystack is configured.
  */
-export function openCheckout(tierName: TierName): void {
-  const url = buildCheckoutUrl(tierName);
-  window.location.href = url;
-}
-
-/**
- * Open checkout in a new tab.
- */
-export function openCheckoutNewTab(tierName: TierName): void {
-  window.open(buildCheckoutUrl(tierName), '_blank', 'noopener,noreferrer');
-}
-
-/**
- * Check if tier has a real variant ID configured (not empty/default).
- */
-export function isTierConfigured(tierName: TierName): boolean {
-  if (tierName === 'Free') return true;
-  const id = tierName === 'Pro' ? PRO_VARIANT_ID : ELITE_VARIANT_ID;
-  return !!id && !id.includes('YOUR_');
-}
-
-/**
- * Get the configured variant ID for a tier (used by API route).
- */
-export function getVariantId(tierName: TierName): string | null {
-  if (tierName === 'Free') return null;
-  return tierName === 'Pro' ? PRO_VARIANT_ID : ELITE_VARIANT_ID;
+export function isPaystackConfigured(): boolean {
+  return !!PAYSTACK_PUBLIC_KEY && !PAYSTACK_PUBLIC_KEY.includes('YOUR_');
 }
